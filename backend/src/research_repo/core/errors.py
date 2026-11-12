@@ -5,9 +5,11 @@ Every error response has the shape::
     {"error": {"code": "auth.invalid_credentials", "message": "English fallback text"}}
 
 ``code`` is a stable dotted key that clients translate; ``message`` is an English fallback.
+Some errors add a third key, ``details`` (an object with machine-readable context).
 """
 
 import logging
+from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -29,6 +31,7 @@ class AppError(Exception):
         code: str | None = None,
         status_code: int | None = None,
         headers: dict[str, str] | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         if message is not None:
             self.message = message
@@ -37,6 +40,7 @@ class AppError(Exception):
         if status_code is not None:
             self.status_code = status_code
         self.headers = headers
+        self.details = details
         super().__init__(self.message)
 
 
@@ -85,19 +89,38 @@ _HTTP_STATUS_CODES: dict[int, tuple[str, str]] = {
 }
 
 
-def error_body(code: str, message: str) -> dict[str, dict[str, str]]:
-    return {"error": {"code": code, "message": message}}
+class ValidationFailed(AppError):
+    """Invalid input detected by a service (the same code request validation uses)."""
+
+    status_code = 422
+    code = "validation.invalid"
+    message = "The request data is invalid."
+
+
+def error_body(
+    code: str, message: str, details: dict[str, Any] | None = None
+) -> dict[str, dict[str, Any]]:
+    error: dict[str, Any] = {"code": code, "message": message}
+    if details is not None:
+        error["details"] = details
+    return {"error": error}
 
 
 def _response(
-    status_code: int, code: str, message: str, headers: dict[str, str] | None = None
+    status_code: int,
+    code: str,
+    message: str,
+    headers: dict[str, str] | None = None,
+    details: dict[str, Any] | None = None,
 ) -> JSONResponse:
-    return JSONResponse(error_body(code, message), status_code=status_code, headers=headers)
+    return JSONResponse(
+        error_body(code, message, details), status_code=status_code, headers=headers
+    )
 
 
 async def _app_error_handler(_: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, AppError)
-    return _response(exc.status_code, exc.code, exc.message, exc.headers)
+    return _response(exc.status_code, exc.code, exc.message, exc.headers, exc.details)
 
 
 async def _validation_error_handler(_: Request, exc: Exception) -> JSONResponse:

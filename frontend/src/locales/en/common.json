@@ -3,5 +3,13 @@
   "language.label": "Language",
   "language.en": "English",
   "language.es": "Español",
-  "loading": "Loading…"
+  "loading": "Loading…",
+  "cancel": "Cancel",
+  "close": "Close",
+  "save": "Save",
+  "retry": "Try again",
+  "dismiss": "Dismiss",
+  "unsaved.title": "Discard unsaved changes?",
+  "unsaved.body": "You have changes that have not been saved. If you leave now they will be lost.",
+  "unsaved.discard": "Discard changes"
 }

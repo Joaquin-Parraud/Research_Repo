@@ -9,5 +9,14 @@
   "auth.forbidden": "You do not have permission to do that.",
   "project.not_found": "Project not found.",
   "network": "Could not reach the server. Check your connection and try again.",
-  "unknown": "Something went wrong. Please try again."
+  "unknown": "Something went wrong. Please try again.",
+  "folder.name_conflict": "A folder with that name already exists here.",
+  "folder.cycle": "A folder cannot be moved into itself or one of its subfolders.",
+  "folder.not_found": "Folder not found. It may have been deleted.",
+  "source.invalid_pdf": "That file is not a valid PDF.",
+  "source.file_too_large": "That file is too large to upload.",
+  "source.duplicate_file": "This PDF is already in the project.",
+  "source.no_file": "This source has no PDF attached.",
+  "source.move_invalid": "The selected sources cannot be moved there.",
+  "source.not_found": "Source not found. It may have been deleted."
 }

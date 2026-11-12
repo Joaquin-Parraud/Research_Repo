@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from research_repo.core.config import Settings
 from research_repo.core.db import get_db
+from research_repo.core.storage import FileStorage
 from research_repo.models import User
 from research_repo.services import auth as auth_service
 
@@ -29,3 +30,11 @@ async def get_current_user(db: DbSession, token: SessionToken = None) -> User:
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def get_storage(request: Request) -> FileStorage:
+    storage: FileStorage = request.app.state.storage
+    return storage
+
+
+Storage = Annotated[FileStorage, Depends(get_storage)]

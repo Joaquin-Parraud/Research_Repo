@@ -1,0 +1,111 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tree,
+.group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tree {
+  padding: 0.4rem 0.4rem 1rem;
+}
+
+.item {
+  outline: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.9rem;
+  padding-right: 0.4rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.row:hover {
+  background: var(--hover);
+}
+
+.item:focus-visible > .row {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.selected > .row,
+.selected > .row:hover {
+  background: var(--hover);
+  box-shadow: inset 3px 0 0 var(--accent);
+  font-weight: 600;
+}
+
+.dropOver > .row,
+.dropOver > .row:hover {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+}
+
+.dragging > .row {
+  opacity: 0.4;
+}
+
+.twisty {
+  display: inline-grid;
+  place-items: center;
+  width: 1.1rem;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.inlineWrap {
+  flex: 1;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.15rem 0;
+}
+
+.inlineInput {
+  padding: 0.2rem 0.4rem;
+}
+
+.message {
+  margin: 0;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.overlay {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.25);
+}

@@ -1,0 +1,54 @@
+.wrap {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.titleInput {
+  flex: 1;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.facts dt {
+  display: inline;
+}
+
+.facts dd {
+  display: inline;
+  margin: 0 0 0 0.25rem;
+  color: var(--text);
+}
+
+.fact {
+  display: inline-block;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}

@@ -9,5 +9,14 @@
   "auth.forbidden": "No tienes permiso para hacer eso.",
   "project.not_found": "Proyecto no encontrado.",
   "network": "No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
-  "unknown": "Algo salió mal. Inténtalo de nuevo."
+  "unknown": "Algo salió mal. Inténtalo de nuevo.",
+  "folder.name_conflict": "Ya existe una carpeta con ese nombre aquí.",
+  "folder.cycle": "Una carpeta no se puede mover dentro de sí misma ni de sus subcarpetas.",
+  "folder.not_found": "No se encontró la carpeta. Es posible que se haya eliminado.",
+  "source.invalid_pdf": "Ese archivo no es un PDF válido.",
+  "source.file_too_large": "Ese archivo es demasiado grande para subirlo.",
+  "source.duplicate_file": "Este PDF ya está en el proyecto.",
+  "source.no_file": "Esta fuente no tiene un PDF adjunto.",
+  "source.move_invalid": "Las fuentes seleccionadas no se pueden mover ahí.",
+  "source.not_found": "No se encontró la fuente. Es posible que se haya eliminado."
 }

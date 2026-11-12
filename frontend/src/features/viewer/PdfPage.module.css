@@ -1,0 +1,27 @@
+.page {
+  position: relative;
+  margin: 0 auto;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+  flex-shrink: 0;
+}
+
+.canvas {
+  display: block;
+}
+
+.textLayer {
+  position: absolute;
+  inset: 0;
+}
+
+.hit {
+  padding: 0;
+  color: transparent;
+  background: rgb(255 213 0 / 0.45);
+  border-radius: 2px;
+}
+
+.current {
+  background: rgb(255 120 0 / 0.55);
+}

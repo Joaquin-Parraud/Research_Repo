@@ -1,0 +1,168 @@
+.header {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.sortSelect {
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.15rem 0.3rem;
+}
+
+.summary {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.bulk {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  background: var(--hover);
+  border-radius: var(--radius);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drop {
+  min-height: 100%;
+}
+
+.dropOver {
+  outline: 2px dashed var(--accent);
+  outline-offset: -4px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  touch-action: manipulation;
+}
+
+.row:hover {
+  background: var(--hover);
+}
+
+.open {
+  background: var(--hover);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.checked {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.dragging {
+  opacity: 0.4;
+}
+
+.titleButton {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0.15rem 0;
+  cursor: pointer;
+}
+
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 0 0.4rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.authors {
+  flex: 0 0 28%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.year {
+  flex: 0 0 2.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.pages {
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.rowActions {
+  display: flex;
+  gap: 0.15rem;
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.row:hover .rowActions,
+.row:focus-within .rowActions {
+  opacity: 1;
+}
+
+.renameInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.message {
+  margin: 0;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}

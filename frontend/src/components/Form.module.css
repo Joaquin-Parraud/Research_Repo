@@ -1,0 +1,59 @@
+.field {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.input,
+.textarea,
+.select {
+  font: inherit;
+  font-weight: 400;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.6rem;
+  width: 100%;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.error {
+  min-height: 1.1rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--danger);
+}
+
+.section {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -1,0 +1,61 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.content {
+  flex: 1;
+  padding: 0.9rem 1.1rem;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 18rem;
+  height: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.error {
+  margin: 0;
+  padding: 0 0.9rem 0.6rem;
+  font-size: 0.85rem;
+  color: var(--danger);
+}
+
+.message {
+  padding: 1rem;
+  color: var(--text-muted);
+}
+
+.emptyWrap {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+}

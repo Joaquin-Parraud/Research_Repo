@@ -14,7 +14,16 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
-      <Route path="/" element={user ? <AppShell user={user} /> : <Navigate to="/login" replace />} />
+      {/*
+        One layout route for every app URL, so moving between project, folder and source
+        URLs keeps the same AppShell mounted (upload queue, toasts, open dialogs).
+        The shell reads the selection from the URL itself.
+      */}
+      <Route element={user ? <AppShell user={user} /> : <Navigate to="/login" replace />}>
+        <Route path="/" element={null} />
+        <Route path="/p/:projectId" element={null} />
+        <Route path="/p/:projectId/f/:folderId" element={null} />
+      </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

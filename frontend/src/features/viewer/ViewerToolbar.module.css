@@ -1,0 +1,48 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pageInput {
+  width: 3.4rem;
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.2rem 0.3rem;
+}
+
+.search {
+  width: 9rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.2rem 0.4rem;
+}
+
+.text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1;
+}

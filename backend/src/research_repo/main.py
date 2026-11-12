@@ -11,6 +11,7 @@ from research_repo.core.config import Settings, get_settings
 from research_repo.core.db import create_engine, create_sessionmaker
 from research_repo.core.errors import install_error_handlers
 from research_repo.core.rate_limit import LoginRateLimiter
+from research_repo.core.storage import FileStorage
 from research_repo.services.users import bootstrap_owner
 
 
@@ -24,6 +25,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.sessionmaker = create_sessionmaker(engine)
         try:
             settings.storage_dir.mkdir(parents=True, exist_ok=True)
+            app.state.storage.prepare()
             async with app.state.sessionmaker() as db:
                 await bootstrap_owner(
                     db,
@@ -48,6 +50,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         openapi_url="/api/openapi.json",
     )
     app.state.settings = settings
+    app.state.storage = FileStorage(settings.storage_dir)
     app.state.login_limiter = LoginRateLimiter(
         max_failures=settings.login_rate_limit_attempts,
         window_seconds=settings.login_rate_limit_window_seconds,

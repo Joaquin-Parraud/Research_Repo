@@ -14,6 +14,8 @@ class Settings(BaseSettings):
         description="SQLAlchemy URL, e.g. postgresql+asyncpg://user:pass@host:5432/db",
     )
     storage_dir: Path = Path("/data/storage")
+    # Largest PDF accepted by an upload, in megabytes (MiB).
+    max_upload_mb: int = Field(default=200, ge=1)
 
     session_ttl_days: int = Field(default=30, ge=1)
     cookie_secure: bool = False
@@ -26,6 +28,10 @@ class Settings(BaseSettings):
     owner_display_name: str = ""
 
     log_level: str = "INFO"
+
+    @property
+    def max_upload_bytes(self) -> int:
+        return self.max_upload_mb * 1024 * 1024
 
 
 @lru_cache

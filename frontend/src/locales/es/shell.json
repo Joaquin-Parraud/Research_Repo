@@ -1,14 +1,15 @@
 {
   "projects.title": "Proyectos",
-  "projects.empty.title": "Aún no hay proyectos",
-  "projects.empty.body": "Los proyectos aparecerán aquí cuando puedas crearlos.",
+  "projects.unavailable": "Proyecto no disponible",
+  "projects.backToList": "Volver a los proyectos",
+  "folders.title": "Carpetas",
   "sources.title": "Fuentes",
   "sources.empty.title": "Nada seleccionado",
   "sources.empty.body": "Selecciona un proyecto para ver sus fuentes.",
   "viewer.title": "Visor",
   "viewer.empty.title": "Ninguna fuente abierta",
-  "viewer.empty.body": "El visor de PDF y el panel de citas aparecerán aquí.",
-  "citation.title": "Cita",
-  "citation.empty.body": "Selecciona una fuente para ver su referencia.",
+  "viewer.empty.body": "Selecciona un proyecto y abre una fuente para leerla aquí.",
+  "readme.title": "README",
+  "details.title": "Detalles",
   "user.menu": "Cuenta"
 }

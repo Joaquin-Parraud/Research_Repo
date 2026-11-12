@@ -1,0 +1,36 @@
+.list {
+  margin: 0;
+  padding: 0.25rem;
+  max-height: 18rem;
+  overflow: auto;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.option:hover {
+  background: var(--hover);
+}
+
+.disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.disabled:hover {
+  background: transparent;
+}
+
+.note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

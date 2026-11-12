@@ -1,0 +1,52 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.05rem 0.2rem 0.05rem 0.55rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+}
+
+.chipPlain {
+  padding-right: 0.55rem;
+}
+
+.remove {
+  font: inherit;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  padding: 0.1rem 0.3rem;
+  cursor: pointer;
+}
+
+.remove:hover {
+  color: var(--danger);
+}
+
+.input {
+  font: inherit;
+  font-size: 0.85rem;
+  min-width: 8rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.2rem 0.45rem;
+}
+
+.none {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}

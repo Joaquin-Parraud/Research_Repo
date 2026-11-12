@@ -1,0 +1,73 @@
+.markdown {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  line-height: 1.25;
+  margin: 1.2em 0 0.5em;
+}
+
+.markdown h1 {
+  font-size: 1.5rem;
+}
+
+.markdown h2 {
+  font-size: 1.2rem;
+}
+
+.markdown h3 {
+  font-size: 1.05rem;
+}
+
+.markdown a {
+  color: var(--accent);
+}
+
+.markdown code {
+  padding: 0.1em 0.3em;
+  font-size: 0.9em;
+  background: var(--hover);
+  border-radius: 4px;
+}
+
+.markdown pre {
+  overflow: auto;
+  padding: 0.75rem;
+  background: var(--hover);
+  border-radius: var(--radius);
+}
+
+.markdown pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.markdown blockquote {
+  margin: 0.75rem 0;
+  padding-left: 0.9rem;
+  color: var(--text-muted);
+  border-left: 3px solid var(--border);
+}
+
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow: auto;
+}
+
+.markdown th,
+.markdown td {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+}
+
+.markdown img {
+  max-width: 100%;
+}

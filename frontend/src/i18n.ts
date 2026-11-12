@@ -4,11 +4,15 @@ import type { Language } from "./api/auth";
 import enAuth from "./locales/en/auth.json";
 import enCommon from "./locales/en/common.json";
 import enErrors from "./locales/en/errors.json";
+import enLibrary from "./locales/en/library.json";
 import enShell from "./locales/en/shell.json";
+import enViewer from "./locales/en/viewer.json";
 import esAuth from "./locales/es/auth.json";
 import esCommon from "./locales/es/common.json";
 import esErrors from "./locales/es/errors.json";
+import esLibrary from "./locales/es/library.json";
 import esShell from "./locales/es/shell.json";
+import esViewer from "./locales/es/viewer.json";
 
 export const SUPPORTED_LANGUAGES: readonly Language[] = ["en", "es"];
 
@@ -27,8 +31,8 @@ export function detectBrowserLanguage(): Language {
 }
 
 export const resources = {
-  en: { auth: enAuth, common: enCommon, errors: enErrors, shell: enShell },
-  es: { auth: esAuth, common: esCommon, errors: esErrors, shell: esShell },
+  en: { auth: enAuth, common: enCommon, errors: enErrors, library: enLibrary, shell: enShell, viewer: enViewer },
+  es: { auth: esAuth, common: esCommon, errors: esErrors, library: esLibrary, shell: esShell, viewer: esViewer },
 } as const;
 
 void i18n.use(initReactI18next).init({
@@ -36,7 +40,7 @@ void i18n.use(initReactI18next).init({
   lng: detectBrowserLanguage(),
   fallbackLng: "en",
   defaultNS: "common",
-  ns: ["common", "auth", "shell", "errors"],
+  ns: ["common", "auth", "shell", "errors", "library", "viewer"],
   keySeparator: false,
   interpolation: { escapeValue: false },
 });
