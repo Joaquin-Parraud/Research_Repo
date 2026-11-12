@@ -1,3 +1,5 @@
+import type { Citation } from "../api/citations";
+import type { AppConfig } from "../api/config";
 import type { Folder, LibraryTree, Source, SourceSummary } from "../api/library";
 import type { Project, Role } from "../api/projects";
 import { jsonResponse, testUser } from "./helpers";
@@ -31,7 +33,7 @@ export function makeSummary(id: string, title: string, folder_id: string | null,
     year: null,
     citation_key: id,
     has_file: true,
-    metadata_status: "pending",
+    metadata_status: "confirmed",
     text_status: "queued",
     page_count: 10,
     created_at: "2026-02-01T00:00:00Z",
@@ -48,8 +50,10 @@ export function makeSource(overrides: Partial<Source> = {}): Source {
     authors_text: null,
     year: null,
     citation_key: "alpha",
+    citation_key_auto: true,
     doi: null,
-    metadata_status: "pending",
+    csl: { type: "document", title: "Alpha paper" },
+    metadata_status: "confirmed",
     text_status: "queued",
     last_page_read: 1,
     has_file: true,
@@ -78,6 +82,20 @@ export function sampleTree(): LibraryTree {
   };
 }
 
+export function makeCitation(overrides: Partial<Citation> = {}): Citation {
+  return {
+    style: "apa",
+    locale: "en-US",
+    reference_text: "Doe, J. (2020). A study. Journal, 1(2), 3-4.",
+    reference_html: "Doe, J. (2020). A study. <i>Journal</i>, <i>1</i>(2), 3-4.",
+    in_text_parenthetical: "(Doe, 2020)",
+    in_text_narrative: "Doe (2020)",
+    ...overrides,
+  };
+}
+
+export const defaultConfig: AppConfig = { max_upload_mb: 50, metadata_lookup_enabled: true };
+
 type Handler = (init: RequestInit) => Response | Promise<Response>;
 
 interface BaseOptions {
@@ -85,12 +103,21 @@ interface BaseOptions {
   tree?: LibraryTree;
   readme?: string;
   projects?: Project[];
+  project?: Project;
+  config?: AppConfig;
 }
 
 /** The requests every project screen makes. Spread into `mockApi` and add test-specific routes. */
 export function baseRoutes(options: BaseOptions = {}): Record<string, Handler> {
-  const project = makeProject({ role: options.role ?? "owner" });
+  const project = options.project ?? makeProject({ role: options.role ?? "owner" });
+  const citation = () => jsonResponse(200, makeCitation());
   return {
+    "GET /api/config": () => jsonResponse(200, options.config ?? defaultConfig),
+    // Opening a source loads its citation; tests that care about it override these.
+    "GET /api/sources/s1/citation": citation,
+    "GET /api/sources/s2/citation": citation,
+    "GET /api/sources/s3/citation": citation,
+    "GET /api/sources/s4/citation": citation,
     "GET /api/auth/me": () => jsonResponse(200, testUser),
     "GET /api/projects?include_archived=false": () => jsonResponse(200, options.projects ?? [project]),
     "GET /api/projects/p1": () => jsonResponse(200, project),

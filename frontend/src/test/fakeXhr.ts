@@ -2,8 +2,12 @@
 export class FakeXHR {
   static instances: FakeXHR[] = [];
 
-  upload: { onprogress: ((event: { lengthComputable: boolean; loaded: number; total: number }) => void) | null } = {
+  upload: {
+    onprogress: ((event: { lengthComputable: boolean; loaded: number; total: number }) => void) | null;
+    onload: (() => void) | null;
+  } = {
     onprogress: null,
+    onload: null,
   };
   onload: (() => void) | null = null;
   onerror: (() => void) | null = null;
@@ -39,6 +43,11 @@ export class FakeXHR {
 
   progress(fraction: number) {
     this.upload.onprogress?.({ lengthComputable: true, loaded: fraction * 100, total: 100 });
+  }
+
+  /** All bytes sent; the server is still working. */
+  uploaded() {
+    this.upload.onload?.();
   }
 
   respond(status: number, body: unknown) {

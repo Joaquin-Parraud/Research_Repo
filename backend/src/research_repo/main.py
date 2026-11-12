@@ -6,13 +6,18 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from research_repo import __version__
 from research_repo.api import api_router
+from research_repo.citations.processor import CiteprocClient
 from research_repo.core.config import Settings, get_settings
 from research_repo.core.db import create_engine, create_sessionmaker
 from research_repo.core.errors import install_error_handlers
 from research_repo.core.rate_limit import LoginRateLimiter
 from research_repo.core.storage import FileStorage
+from research_repo.services.metadata import MetadataLookup
 from research_repo.services.users import bootstrap_owner
+
+logger = logging.getLogger(__name__)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -37,13 +42,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     ),
                     display_name=settings.owner_display_name,
                 )
+            # Only logged: the API (and /api/health) works without the citation service; the
+            # citation endpoints answer 503 citation.unavailable until it is back.
+            if await app.state.citeproc.healthy():
+                logger.info("Citation service at %s is up", settings.citeproc_url)
+            else:
+                logger.warning("Citation service at %s is not reachable", settings.citeproc_url)
             yield
         finally:
+            await app.state.citeproc.aclose()
             await engine.dispose()
 
     app = FastAPI(
         title="Research Repo",
-        version="0.1.0",
+        version=__version__,
         lifespan=lifespan,
         docs_url="/api/docs",
         redoc_url=None,
@@ -51,6 +63,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.state.storage = FileStorage(settings.storage_dir)
+    app.state.metadata_lookup = MetadataLookup(settings)
+    app.state.citeproc = CiteprocClient(
+        settings.citeproc_url, timeout=settings.citeproc_timeout_seconds
+    )
     app.state.login_limiter = LoginRateLimiter(
         max_failures=settings.login_rate_limit_attempts,
         window_seconds=settings.login_rate_limit_window_seconds,

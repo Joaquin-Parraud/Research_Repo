@@ -12,13 +12,15 @@ interface DialogProps {
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
+  /** For long forms. */
+  xwide?: boolean;
 }
 
 /**
  * Modal dialog: labelled, closes on Escape, traps Tab focus inside, moves focus
  * in on open (to `[data-autofocus]` or the first control) and restores it on close.
  */
-export function Dialog({ title, description, onClose, children, footer, wide }: DialogProps) {
+export function Dialog({ title, description, onClose, children, footer, wide, xwide }: DialogProps) {
   const titleId = useId();
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -76,7 +78,7 @@ export function Dialog({ title, description, onClose, children, footer, wide }: 
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
-        className={`${styles.panel} ${wide ? styles.wide : ""}`}
+        className={`${styles.panel} ${wide ? styles.wide : ""} ${xwide ? styles.xwide : ""}`}
       >
         <h2 id={titleId} className={styles.title}>
           {title}

@@ -6,6 +6,7 @@ import { Button } from "../../components/Button";
 import forms from "../../components/Form.module.css";
 import type { LibraryDragData } from "../folders/LibraryDnd";
 import { sourceDragId } from "../library/tree";
+import { StatusBadge } from "../metadata/StatusBadge";
 import styles from "./SourceList.module.css";
 
 interface Props {
@@ -46,8 +47,8 @@ export function SourceRow({
   });
 
   function handleTitleClick(event: MouseEvent) {
-    if (canWrite && event.shiftKey) onSelect("range");
-    else if (canWrite && (event.metaKey || event.ctrlKey)) onSelect("toggle");
+    if (event.shiftKey) onSelect("range");
+    else if (event.metaKey || event.ctrlKey) onSelect("toggle");
     else onOpen();
   }
 
@@ -77,15 +78,13 @@ export function SourceRow({
 
   return (
     <li ref={setNodeRef} className={classes} aria-current={isOpen ? "true" : undefined} {...(renaming ? {} : (listeners ?? {}))}>
-      {canWrite && (
-        <input
-          type="checkbox"
-          checked={isChecked}
-          aria-label={t("sources.selectOne", { title: source.title })}
-          onChange={() => undefined}
-          onClick={(event) => onSelect(event.shiftKey ? "range" : "toggle")}
-        />
-      )}
+      <input
+        type="checkbox"
+        checked={isChecked}
+        aria-label={t("sources.selectOne", { title: source.title })}
+        onChange={() => undefined}
+        onClick={(event) => onSelect(event.shiftKey ? "range" : "toggle")}
+      />
       {renaming ? (
         <input
           className={`${forms.input} ${styles.renameInput}`}
@@ -104,6 +103,7 @@ export function SourceRow({
           {!source.has_file && <span className={styles.badge}>{t("sources.citationOnly")}</span>}
         </button>
       )}
+      <StatusBadge status={source.metadata_status} />
       {showMetadata && (
         <>
           <span className={styles.authors}>{source.authors_text ?? ""}</span>

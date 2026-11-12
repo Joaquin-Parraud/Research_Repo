@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { makeSummary } from "../../test/fixtures";
-import { applySelection, hasMetadataColumns, rangeIds, sortSources } from "./selection";
+import { applySelection, filterNeedsReview, hasMetadataColumns, rangeIds, sortSources } from "./selection";
 
 const ids = ["a", "b", "c", "d", "e"];
 
@@ -49,5 +49,31 @@ describe("sorting and columns", () => {
     expect(hasMetadataColumns(sources)).toBe(false);
     expect(hasMetadataColumns([...sources, makeSummary("4", "x", null, { year: 2020 })])).toBe(true);
     expect(hasMetadataColumns([makeSummary("5", "x", null, { authors_text: "Ng" })])).toBe(true);
+  });
+});
+
+describe("sorting by authors and year, and the review filter", () => {
+  const compare = new Intl.Collator("en", { numeric: true, sensitivity: "base" }).compare;
+  const sources = [
+    makeSummary("1", "One", null, { authors_text: "Smith, A.", year: 2019, metadata_status: "confirmed" }),
+    makeSummary("2", "Two", null, { authors_text: "Doe, J.", year: 2021, metadata_status: "suggested" }),
+    makeSummary("3", "Three", null, { authors_text: null, year: null, metadata_status: "pending" }),
+    makeSummary("4", "Four", null, { authors_text: "Álvarez, M.", year: 2021, metadata_status: "confirmed" }),
+  ];
+  const ids = (key: "authors" | "year", direction: "asc" | "desc") =>
+    sortSources(sources, key, direction, compare).map((s) => s.id);
+
+  it("sorts by authors, with sources without authors last in both directions", () => {
+    expect(ids("authors", "asc")).toEqual(["4", "2", "1", "3"]);
+    expect(ids("authors", "desc")).toEqual(["1", "2", "4", "3"]);
+  });
+
+  it("sorts by year numerically, ties by title, sources without a year last in both directions", () => {
+    expect(ids("year", "asc")).toEqual(["1", "4", "2", "3"]);
+    expect(ids("year", "desc")).toEqual(["4", "2", "1", "3"]);
+  });
+
+  it("keeps pending and suggested sources for the 'needs review' filter", () => {
+    expect(filterNeedsReview(sources).map((s) => s.id)).toEqual(["2", "3"]);
   });
 });

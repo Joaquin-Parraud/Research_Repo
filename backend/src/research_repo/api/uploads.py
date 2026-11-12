@@ -18,6 +18,7 @@ from research_repo.services.sources import FileTooLarge
 
 FILE_FIELD = "file"
 TEXT_FIELDS = frozenset({"folder_id", "title", "allow_duplicate"})
+ATTACH_FIELDS = frozenset({"allow_duplicate"})
 _MAX_TEXT_FIELD_BYTES = 16 * 1024
 _MAX_PARTS = 16
 # Allowance for multipart framing and the text fields on top of the file itself.
@@ -56,7 +57,8 @@ def _unescape_filename(filename: str) -> str:
 class _Reader:
     """Collects parser events; file bytes are buffered per network chunk, then written."""
 
-    def __init__(self) -> None:
+    def __init__(self, text_fields: frozenset[str]) -> None:
+        self.text_fields = text_fields
         self.parts: list[_Part] = []
         self.current: _Part | None = None
         self.header_field = bytearray()
@@ -102,7 +104,9 @@ class _Reader:
         part.name = _decode(options.get(b"name", b""))
         if b"filename" in options:
             part.filename = _unescape_filename(_decode(options[b"filename"]))
-        if part.name != FILE_FIELD and (part.name not in TEXT_FIELDS or part.filename is not None):
+        if part.name != FILE_FIELD and (
+            part.name not in self.text_fields or part.filename is not None
+        ):
             raise ValidationFailed(f"Unexpected form field {part.name!r}.")
         if sum(p.name == part.name for p in self.parts) > 1:
             raise ValidationFailed(f"The form field {part.name!r} appears more than once.")
@@ -123,7 +127,11 @@ class _Reader:
 
 
 async def read_source_upload(
-    request: Request, storage: FileStorage, *, max_bytes: int
+    request: Request,
+    storage: FileStorage,
+    *,
+    max_bytes: int,
+    text_fields: frozenset[str] = TEXT_FIELDS,
 ) -> SourceUpload:
     """Parse the form. On error nothing is left behind; on success the caller owns
     ``file`` and must ``discard()`` it.
@@ -136,7 +144,7 @@ async def read_source_upload(
     if declared and declared.isdigit() and int(declared) > max_bytes + _ENVELOPE_BYTES:
         raise FileTooLarge
 
-    reader = _Reader()
+    reader = _Reader(text_fields)
     parser = MultipartParser(boundary, reader.callbacks())  # type: ignore[arg-type]
     staged: StagedFile | None = None
     try:
@@ -163,7 +171,7 @@ async def read_source_upload(
             staged = await storage.stage(max_bytes=max_bytes, original_filename=file_part.filename)
         if staged is not None:
             await staged.finish()
-        fields = {p.name: _decode(bytes(p.text)) for p in reader.parts if p.name in TEXT_FIELDS}
+        fields = {p.name: _decode(bytes(p.text)) for p in reader.parts if p.name in text_fields}
         return SourceUpload(fields=fields, file=staged)
     except UploadTooLarge:
         if staged is not None:

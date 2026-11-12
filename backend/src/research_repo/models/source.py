@@ -5,6 +5,7 @@ from typing import Any
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     CheckConstraint,
     ForeignKey,
     Index,
@@ -12,6 +13,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     text,
+    true,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column
@@ -49,6 +51,8 @@ class Source(Base):
     # No ON DELETE action: deleting a folder re-homes its sources in the service layer.
     folder_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("folder.id"), index=True)
     citation_key: Mapped[str] = mapped_column(Text)
+    # True while the key follows the metadata (FR-S7); false once a user has set it by hand.
+    citation_key_auto: Mapped[bool] = mapped_column(Boolean, server_default=true())
     csl: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
     title: Mapped[str] = mapped_column(Text, server_default="")
     year: Mapped[int | None] = mapped_column(Integer)

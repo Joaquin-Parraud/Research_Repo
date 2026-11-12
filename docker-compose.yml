@@ -16,16 +16,39 @@ services:
       timeout: 5s
       retries: 10
 
+  # APA 7 citation processor (citeproc-js + the official CSL style). Internal only: it is not
+  # published to the host and has no authentication; only the backend talks to it.
+  citeproc:
+    build: ./citeproc
+    restart: unless-stopped
+    environment:
+      MAX_BODY_MB: ${CITEPROC_MAX_BODY_MB:-32}
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   backend:
     build: ./backend
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
+      citeproc:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-research_repo}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-research_repo}
       STORAGE_DIR: /data/storage
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-200}
+      METADATA_LOOKUP_ENABLED: ${METADATA_LOOKUP_ENABLED:-true}
+      METADATA_LOOKUP_TIMEOUT_SECONDS: ${METADATA_LOOKUP_TIMEOUT_SECONDS:-6}
+      CROSSREF_MAILTO: ${CROSSREF_MAILTO:-}
       SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-30}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       LOGIN_RATE_LIMIT_ATTEMPTS: ${LOGIN_RATE_LIMIT_ATTEMPTS:-5}
@@ -33,6 +56,8 @@ services:
       OWNER_EMAIL: ${OWNER_EMAIL:-}
       OWNER_PASSWORD: ${OWNER_PASSWORD:-}
       OWNER_DISPLAY_NAME: ${OWNER_DISPLAY_NAME:-}
+      CITEPROC_URL: http://citeproc:8080
+      CITEPROC_TIMEOUT_SECONDS: ${CITEPROC_TIMEOUT_SECONDS:-30}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
       - storage:/data/storage
@@ -53,6 +78,9 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    environment:
+      # Rendered into nginx's client_max_body_size (see frontend/nginx.conf).
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-200}
     ports:
       - "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-8080}:80"
 

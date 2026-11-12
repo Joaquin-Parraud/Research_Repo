@@ -1,0 +1,899 @@
+{
+ "_about": "APA 7 gold set. Expected strings written from the APA Publication Manual (7th ed.) rules: reference list ch. 9-10, in-text ch. 8. reference_html uses the backend's markup (<i> for italics, &amp; escaped). Cases rendered alone unless 'group' is set; a group is rendered as one reference list. 'style_wording' marks an expectation that follows the official apa.csl and CSL locale wording where it differs from the hand-written APA text, by owner decision; its value says what differs.",
+ "cases": [
+  {
+   "name": "journal-1-author",
+   "locale": "en-US",
+   "csl": {
+    "type": "article-journal",
+    "title": "Single author article",
+    "container-title": "Journal of Tests",
+    "volume": "5",
+    "issue": "2",
+    "page": "10-20",
+    "issued": {
+     "date-parts": [
+      [
+       2020
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Lee",
+      "given": "Ann"
+     }
+    ],
+    "DOI": "10.1000/one"
+   },
+   "reference_html": "Lee, A. (2020). Single author article. <i>Journal of Tests</i>, <i>5</i>(2), 10–20. https://doi.org/10.1000/one",
+   "in_text_parenthetical": "(Lee, 2020)",
+   "in_text_narrative": "Lee (2020)"
+  },
+  {
+   "name": "journal-2-authors",
+   "locale": "en-US",
+   "csl": {
+    "type": "article-journal",
+    "title": "The effect of things on stuff",
+    "container-title": "Journal of Things",
+    "volume": "12",
+    "issue": "3",
+    "page": "45-67",
+    "issued": {
+     "date-parts": [
+      [
+       2021
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "García",
+      "given": "María"
+     },
+     {
+      "family": "Smith",
+      "given": "John"
+     }
+    ],
+    "DOI": "10.1234/abc"
+   },
+   "reference_html": "García, M., &amp; Smith, J. (2021). The effect of things on stuff. <i>Journal of Things</i>, <i>12</i>(3), 45–67. https://doi.org/10.1234/abc",
+   "in_text_parenthetical": "(García & Smith, 2021)",
+   "in_text_narrative": "García and Smith (2021)"
+  },
+  {
+   "name": "journal-3-authors",
+   "locale": "en-US",
+   "csl": {
+    "type": "article-journal",
+    "title": "Three authors",
+    "container-title": "Psychological Science",
+    "volume": "29",
+    "page": "1-9",
+    "issued": {
+     "date-parts": [
+      [
+       2018
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Brown",
+      "given": "Alice"
+     },
+     {
+      "family": "Clark",
+      "given": "Bob"
+     },
+     {
+      "family": "Davis",
+      "given": "Carl"
+     }
+    ]
+   },
+   "reference_html": "Brown, A., Clark, B., &amp; Davis, C. (2018). Three authors. <i>Psychological Science</i>, <i>29</i>, 1–9.",
+   "in_text_parenthetical": "(Brown et al., 2018)",
+   "in_text_narrative": "Brown et al. (2018)"
+  },
+  {
+   "name": "journal-23-authors",
+   "locale": "en-US",
+   "csl": {
+    "type": "article-journal",
+    "title": "Many authors",
+    "container-title": "Nature",
+    "volume": "1",
+    "page": "1",
+    "issued": {
+     "date-parts": [
+      [
+       2017
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Au01",
+      "given": "X."
+     },
+     {
+      "family": "Au02",
+      "given": "X."
+     },
+     {
+      "family": "Au03",
+      "given": "X."
+     },
+     {
+      "family": "Au04",
+      "given": "X."
+     },
+     {
+      "family": "Au05",
+      "given": "X."
+     },
+     {
+      "family": "Au06",
+      "given": "X."
+     },
+     {
+      "family": "Au07",
+      "given": "X."
+     },
+     {
+      "family": "Au08",
+      "given": "X."
+     },
+     {
+      "family": "Au09",
+      "given": "X."
+     },
+     {
+      "family": "Au10",
+      "given": "X."
+     },
+     {
+      "family": "Au11",
+      "given": "X."
+     },
+     {
+      "family": "Au12",
+      "given": "X."
+     },
+     {
+      "family": "Au13",
+      "given": "X."
+     },
+     {
+      "family": "Au14",
+      "given": "X."
+     },
+     {
+      "family": "Au15",
+      "given": "X."
+     },
+     {
+      "family": "Au16",
+      "given": "X."
+     },
+     {
+      "family": "Au17",
+      "given": "X."
+     },
+     {
+      "family": "Au18",
+      "given": "X."
+     },
+     {
+      "family": "Au19",
+      "given": "X."
+     },
+     {
+      "family": "Au20",
+      "given": "X."
+     },
+     {
+      "family": "Au21",
+      "given": "X."
+     },
+     {
+      "family": "Au22",
+      "given": "X."
+     },
+     {
+      "family": "Au23",
+      "given": "X."
+     }
+    ]
+   },
+   "reference_html": "Au01, X., Au02, X., Au03, X., Au04, X., Au05, X., Au06, X., Au07, X., Au08, X., Au09, X., Au10, X., Au11, X., Au12, X., Au13, X., Au14, X., Au15, X., Au16, X., Au17, X., Au18, X., Au19, X., … Au23, X. (2017). Many authors. <i>Nature</i>, <i>1</i>, 1.",
+   "in_text_parenthetical": "(Au01 et al., 2017)",
+   "in_text_narrative": "Au01 et al. (2017)"
+  },
+  {
+   "name": "book",
+   "locale": "en-US",
+   "csl": {
+    "type": "book",
+    "title": "A book title: With subtitle",
+    "publisher": "Penguin",
+    "issued": {
+     "date-parts": [
+      [
+       2019
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Nguyen",
+      "given": "Thanh B."
+     }
+    ]
+   },
+   "reference_html": "Nguyen, T. B. (2019). <i>A book title: With subtitle</i>. Penguin.",
+   "in_text_parenthetical": "(Nguyen, 2019)",
+   "in_text_narrative": "Nguyen (2019)"
+  },
+  {
+   "name": "chapter-in-edited-book",
+   "locale": "en-US",
+   "csl": {
+    "type": "chapter",
+    "title": "Chapter title here",
+    "container-title": "The edited book",
+    "editor": [
+     {
+      "family": "Edwards",
+      "given": "Eve"
+     },
+     {
+      "family": "Ford",
+      "given": "Frank"
+     }
+    ],
+    "page": "15-30",
+    "publisher": "Routledge",
+    "issued": {
+     "date-parts": [
+      [
+       2016
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Hall",
+      "given": "Harry"
+     }
+    ]
+   },
+   "reference_html": "Hall, H. (2016). Chapter title here. In E. Edwards &amp; F. Ford (Eds.), <i>The edited book</i> (pp. 15–30). Routledge.",
+   "in_text_parenthetical": "(Hall, 2016)",
+   "in_text_narrative": "Hall (2016)"
+  },
+  {
+   "name": "edited-book",
+   "locale": "en-US",
+   "csl": {
+    "type": "book",
+    "title": "Edited volume",
+    "editor": [
+     {
+      "family": "Edwards",
+      "given": "Eve"
+     }
+    ],
+    "publisher": "Sage",
+    "issued": {
+     "date-parts": [
+      [
+       2015
+      ]
+     ]
+    }
+   },
+   "reference_html": "Edwards, E. (Ed.). (2015). <i>Edited volume</i>. Sage.",
+   "in_text_parenthetical": "(Edwards, 2015)",
+   "in_text_narrative": "Edwards (2015)"
+  },
+  {
+   "name": "report-corporate-author",
+   "locale": "en-US",
+   "csl": {
+    "type": "report",
+    "title": "Annual report",
+    "genre": "Report",
+    "number": "12",
+    "author": [
+     {
+      "literal": "National Institute of Mental Health"
+     }
+    ],
+    "publisher": "U.S. Department of Health and Human Services",
+    "issued": {
+     "date-parts": [
+      [
+       2021
+      ]
+     ]
+    }
+   },
+   "reference_html": "National Institute of Mental Health. (2021). <i>Annual report</i> (Report No. 12). U.S. Department of Health and Human Services.",
+   "in_text_parenthetical": "(National Institute of Mental Health, 2021)",
+   "in_text_narrative": "National Institute of Mental Health (2021)"
+  },
+  {
+   "name": "thesis-database",
+   "locale": "en-US",
+   "csl": {
+    "type": "thesis",
+    "title": "A study of thesis formatting",
+    "genre": "Doctoral dissertation",
+    "publisher": "Universidad de Chile",
+    "archive": "ProQuest Dissertations and Theses Global",
+    "number": "10123",
+    "issued": {
+     "date-parts": [
+      [
+       2019
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Ruiz",
+      "given": "Pedro"
+     }
+    ]
+   },
+   "reference_html": "Ruiz, P. (2019). <i>A study of thesis formatting</i> (Publication No. 10123) [Doctoral dissertation, Universidad de Chile]. ProQuest Dissertations and Theses Global.",
+   "in_text_parenthetical": "(Ruiz, 2019)",
+   "in_text_narrative": "Ruiz (2019)"
+  },
+  {
+   "name": "conference-presentation",
+   "locale": "en-US",
+   "csl": {
+    "type": "paper-conference",
+    "title": "Graph methods for risk",
+    "genre": "Paper presentation",
+    "event-title": "International Conference on Finance",
+    "event-place": "Santiago, Chile",
+    "issued": {
+     "date-parts": [
+      [
+       2023,
+       5,
+       3
+      ],
+      [
+       2023,
+       5,
+       5
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Ng",
+      "given": "Andrew"
+     }
+    ]
+   },
+   "reference_html": "Ng, A. (2023, May 3–5). <i>Graph methods for risk</i> [Paper presentation]. International Conference on Finance, Santiago, Chile.",
+   "in_text_parenthetical": "(Ng, 2023)",
+   "in_text_narrative": "Ng (2023)"
+  },
+  {
+   "name": "conference-proceedings",
+   "locale": "en-US",
+   "csl": {
+    "type": "paper-conference",
+    "title": "Learning with graphs",
+    "container-title": "Proceedings of the 10th Conference on Learning",
+    "editor": [
+     {
+      "family": "Ito",
+      "given": "Ken"
+     }
+    ],
+    "page": "100-110",
+    "publisher": "ACM",
+    "issued": {
+     "date-parts": [
+      [
+       2020
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Ng",
+      "given": "Andrew"
+     },
+     {
+      "family": "Ma",
+      "given": "Bo"
+     }
+    ],
+    "DOI": "10.1145/123"
+   },
+   "reference_html": "Ng, A., &amp; Ma, B. (2020). Learning with graphs. In K. Ito (Ed.), <i>Proceedings of the 10th Conference on Learning</i> (pp. 100–110). ACM. https://doi.org/10.1145/123",
+   "in_text_parenthetical": "(Ng & Ma, 2020)",
+   "in_text_narrative": "Ng and Ma (2020)"
+  },
+  {
+   "name": "webpage-no-date",
+   "locale": "en-US",
+   "csl": {
+    "type": "webpage",
+    "title": "How to cite a webpage",
+    "container-title": "Example Site",
+    "URL": "https://example.org/cite",
+    "accessed": {
+     "date-parts": [
+      [
+       2024,
+       3,
+       5
+      ]
+     ]
+    },
+    "author": [
+     {
+      "literal": "Example Org"
+     }
+    ]
+   },
+   "reference_html": "Example Org. (n.d.). <i>How to cite a webpage</i>. Example Site. Retrieved March 5, 2024, from https://example.org/cite",
+   "in_text_parenthetical": "(Example Org, n.d.)",
+   "in_text_narrative": "Example Org (n.d.)"
+  },
+  {
+   "name": "webpage-dated",
+   "locale": "en-US",
+   "csl": {
+    "type": "webpage",
+    "title": "Climate change indicators",
+    "container-title": "United States Environmental Protection Agency",
+    "URL": "https://www.epa.gov/x",
+    "issued": {
+     "date-parts": [
+      [
+       2021,
+       4,
+       15
+      ]
+     ]
+    },
+    "author": [
+     {
+      "literal": "Environmental Protection Agency"
+     }
+    ]
+   },
+   "reference_html": "Environmental Protection Agency. (2021, April 15). <i>Climate change indicators</i>. United States Environmental Protection Agency. https://www.epa.gov/x",
+   "in_text_parenthetical": "(Environmental Protection Agency, 2021)",
+   "in_text_narrative": "Environmental Protection Agency (2021)"
+  },
+  {
+   "name": "preprint",
+   "locale": "en-US",
+   "csl": {
+    "type": "article",
+    "title": "A preprint about things",
+    "publisher": "PsyArXiv",
+    "genre": "Preprint",
+    "issued": {
+     "date-parts": [
+      [
+       2021
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Zhou",
+      "given": "Li"
+     }
+    ],
+    "DOI": "10.31234/osf.io/abcd"
+   },
+   "reference_html": "Zhou, L. (2021). <i>A preprint about things</i> [Preprint]. PsyArXiv. https://doi.org/10.31234/osf.io/abcd",
+   "in_text_parenthetical": "(Zhou, 2021)",
+   "in_text_narrative": "Zhou (2021)"
+  },
+  {
+   "name": "title-only-book",
+   "locale": "en-US",
+   "csl": {
+    "type": "book",
+    "title": "Survey methods handbook",
+    "edition": "3",
+    "publisher": "Wiley",
+    "issued": {
+     "date-parts": [
+      [
+       2019
+      ]
+     ]
+    }
+   },
+   "reference_html": "<i>Survey methods handbook</i> (3rd ed.). (2019). Wiley.",
+   "in_text_parenthetical": "(Survey Methods Handbook, 2019)",
+   "in_text_narrative": "Survey Methods Handbook (2019)"
+  },
+  {
+   "name": "title-only-article",
+   "locale": "en-US",
+   "csl": {
+    "type": "article-journal",
+    "title": "Anonymous article",
+    "container-title": "Journal of Tests",
+    "volume": "2",
+    "page": "5",
+    "issued": {
+     "date-parts": [
+      [
+       2019
+      ]
+     ]
+    }
+   },
+   "reference_html": "Anonymous article. (2019). <i>Journal of Tests</i>, <i>2</i>, 5.",
+   "in_text_parenthetical": "(“Anonymous Article,” 2019)",
+   "in_text_narrative": "“Anonymous Article” (2019)"
+  },
+  {
+   "name": "same-author-same-year",
+   "locale": "en-US",
+   "group": [
+    {
+     "key": "lee2020",
+     "csl": {
+      "type": "article-journal",
+      "title": "Beta study",
+      "container-title": "Journal of Tests",
+      "volume": "1",
+      "page": "1-2",
+      "issued": {
+       "date-parts": [
+        [
+         2020
+        ]
+       ]
+      },
+      "author": [
+       {
+        "family": "Lee",
+        "given": "Ann"
+       }
+      ]
+     }
+    },
+    {
+     "key": "lee2020a",
+     "csl": {
+      "type": "article-journal",
+      "title": "Alpha study",
+      "container-title": "Journal of Tests",
+      "volume": "1",
+      "page": "3-4",
+      "issued": {
+       "date-parts": [
+        [
+         2020
+        ]
+       ]
+      },
+      "author": [
+       {
+        "family": "Lee",
+        "given": "Ann"
+       }
+      ]
+     }
+    },
+    {
+     "key": "brown2018",
+     "csl": {
+      "type": "article-journal",
+      "title": "Three authors",
+      "container-title": "Psychological Science",
+      "volume": "29",
+      "page": "1-9",
+      "issued": {
+       "date-parts": [
+        [
+         2018
+        ]
+       ]
+      },
+      "author": [
+       {
+        "family": "Brown",
+        "given": "Alice"
+       },
+       {
+        "family": "Clark",
+        "given": "Bob"
+       },
+       {
+        "family": "Davis",
+        "given": "Carl"
+       }
+      ]
+     }
+    },
+    {
+     "key": "lee2019",
+     "csl": {
+      "type": "article-journal",
+      "title": "Zeta study",
+      "container-title": "Journal of Tests",
+      "volume": "1",
+      "page": "9",
+      "issued": {
+       "date-parts": [
+        [
+         2019
+        ]
+       ]
+      },
+      "author": [
+       {
+        "family": "Lee",
+        "given": "Ann"
+       }
+      ]
+     }
+    }
+   ],
+   "bibliography_html": [
+    "Brown, A., Clark, B., &amp; Davis, C. (2018). Three authors. <i>Psychological Science</i>, <i>29</i>, 1–9.",
+    "Lee, A. (2019). Zeta study. <i>Journal of Tests</i>, <i>1</i>, 9.",
+    "Lee, A. (2020a). Alpha study. <i>Journal of Tests</i>, <i>1</i>, 3–4.",
+    "Lee, A. (2020b). Beta study. <i>Journal of Tests</i>, <i>1</i>, 1–2."
+   ],
+   "in_text_parenthetical": {
+    "lee2020a": "(Lee, 2020a)",
+    "lee2020": "(Lee, 2020b)",
+    "lee2019": "(Lee, 2019)"
+   },
+   "in_text_narrative": {
+    "lee2020a": "Lee (2020a)",
+    "lee2020": "Lee (2020b)"
+   }
+  },
+  {
+   "name": "same-author-same-year-leading-article",
+   "locale": "en-US",
+   "group": [
+    {
+     "key": "kim2020",
+     "csl": {
+      "type": "book",
+      "title": "Banana methods",
+      "publisher": "Sage",
+      "issued": {
+       "date-parts": [
+        [
+         2020
+        ]
+       ]
+      },
+      "author": [
+       {
+        "family": "Kim",
+        "given": "Ji"
+       }
+      ]
+     }
+    },
+    {
+     "key": "kim2020a",
+     "csl": {
+      "type": "book",
+      "title": "The apple study",
+      "publisher": "Sage",
+      "issued": {
+       "date-parts": [
+        [
+         2020
+        ]
+       ]
+      },
+      "author": [
+       {
+        "family": "Kim",
+        "given": "Ji"
+       }
+      ]
+     }
+    }
+   ],
+   "bibliography_html": [
+    "Kim, J. (2020a). <i>The apple study</i>. Sage.",
+    "Kim, J. (2020b). <i>Banana methods</i>. Sage."
+   ],
+   "in_text_parenthetical": {
+    "kim2020a": "(Kim, 2020a)",
+    "kim2020": "(Kim, 2020b)"
+   },
+   "in_text_narrative": {
+    "kim2020a": "Kim (2020a)"
+   }
+  },
+  {
+   "name": "es-journal-2-authors",
+   "locale": "es",
+   "csl": {
+    "type": "article-journal",
+    "title": "The effect of things on stuff",
+    "container-title": "Journal of Things",
+    "volume": "12",
+    "issue": "3",
+    "page": "45-67",
+    "issued": {
+     "date-parts": [
+      [
+       2021
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "García",
+      "given": "María"
+     },
+     {
+      "family": "Smith",
+      "given": "John"
+     }
+    ],
+    "DOI": "10.1234/abc"
+   },
+   "reference_html": "García, M., &amp; Smith, J. (2021). The effect of things on stuff. <i>Journal of Things</i>, <i>12</i>(3), 45-67. https://doi.org/10.1234/abc",
+   "in_text_parenthetical": "(García & Smith, 2021)",
+   "in_text_narrative": "García y Smith (2021)"
+  },
+  {
+   "name": "es-journal-3-authors",
+   "locale": "es",
+   "csl": {
+    "type": "article-journal",
+    "title": "Tres autores",
+    "container-title": "Revista de Pruebas",
+    "volume": "29",
+    "page": "1-9",
+    "issued": {
+     "date-parts": [
+      [
+       2018
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Brown",
+      "given": "Alice"
+     },
+     {
+      "family": "Clark",
+      "given": "Bob"
+     },
+     {
+      "family": "Davis",
+      "given": "Carl"
+     }
+    ]
+   },
+   "reference_html": "Brown, A., Clark, B., &amp; Davis, C. (2018). Tres autores. <i>Revista de Pruebas</i>, <i>29</i>, 1-9.",
+   "in_text_parenthetical": "(Brown et al., 2018)",
+   "in_text_narrative": "Brown et al. (2018)"
+  },
+  {
+   "name": "es-webpage-no-date",
+   "locale": "es",
+   "csl": {
+    "type": "webpage",
+    "title": "Cómo citar una página web",
+    "container-title": "Sitio de Ejemplo",
+    "URL": "https://example.org/cite",
+    "accessed": {
+     "date-parts": [
+      [
+       2024,
+       3,
+       5
+      ]
+     ]
+    },
+    "author": [
+     {
+      "literal": "Organización Ejemplo"
+     }
+    ]
+   },
+   "reference_html": "Organización Ejemplo. (s. f.). <i>Cómo citar una página web</i>. Sitio de Ejemplo. Recuperado 5 de marzo de 2024, de https://example.org/cite",
+   "in_text_parenthetical": "(Organización Ejemplo, s. f.)",
+   "in_text_narrative": "Organización Ejemplo (s. f.)",
+   "style_wording": "Spanish APA writes \"Recuperado el 5 de marzo de 2024, de\"; the official apa.csl with locales-es-ES renders \"Recuperado 5 de marzo de 2024, de\" (no \"el\"). The official style is the source of truth by owner decision, so this expectation is the style's wording."
+  },
+  {
+   "name": "es-book",
+   "locale": "es",
+   "csl": {
+    "type": "book",
+    "title": "Metodología de la investigación",
+    "edition": "6",
+    "publisher": "McGraw-Hill",
+    "issued": {
+     "date-parts": [
+      [
+       2014
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Hernández Sampieri",
+      "given": "Roberto"
+     },
+     {
+      "family": "Fernández Collado",
+      "given": "Carlos"
+     },
+     {
+      "family": "Baptista Lucio",
+      "given": "Pilar"
+     }
+    ]
+   },
+   "reference_html": "Hernández Sampieri, R., Fernández Collado, C., &amp; Baptista Lucio, P. (2014). <i>Metodología de la investigación</i> (6.ª ed.). McGraw-Hill.",
+   "in_text_parenthetical": "(Hernández Sampieri et al., 2014)",
+   "in_text_narrative": "Hernández Sampieri et al. (2014)"
+  },
+  {
+   "name": "es-chapter-in-edited-book",
+   "locale": "es",
+   "csl": {
+    "type": "chapter",
+    "title": "Capítulo de prueba",
+    "container-title": "Libro editado",
+    "editor": [
+     {
+      "family": "Edwards",
+      "given": "Eve"
+     },
+     {
+      "family": "Ford",
+      "given": "Frank"
+     }
+    ],
+    "page": "15-30",
+    "publisher": "Routledge",
+    "issued": {
+     "date-parts": [
+      [
+       2016
+      ]
+     ]
+    },
+    "author": [
+     {
+      "family": "Hall",
+      "given": "Harry"
+     }
+    ]
+   },
+   "reference_html": "Hall, H. (2016). Capítulo de prueba. En E. Edwards &amp; F. Ford (Eds.), <i>Libro editado</i> (pp. 15-30). Routledge.",
+   "in_text_parenthetical": "(Hall, 2016)",
+   "in_text_narrative": "Hall (2016)"
+  }
+ ]
+}

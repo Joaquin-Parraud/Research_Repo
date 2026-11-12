@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  copyProject,
   createProject,
   deleteProject,
   getProject,
@@ -38,12 +39,21 @@ export function useCreateProject() {
   });
 }
 
+export function useCopyProject(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => copyProject(id, name),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects"] }),
+  });
+}
+
 export function useUpdateProject(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: UpdateProjectInput) => updateProject(id, input),
     onSuccess: (project) => {
       queryClient.setQueryData(projectKey(id), project);
+      // A changed citation language needs no invalidation here: it is part of the citation query key.
       return queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });

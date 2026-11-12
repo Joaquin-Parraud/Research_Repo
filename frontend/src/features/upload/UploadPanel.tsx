@@ -7,6 +7,9 @@ import { useUploadItems, useUploadQueue } from "./UploadProvider";
 import type { UploadItem } from "./uploadQueue";
 import styles from "./UploadPanel.module.css";
 
+const isActive = (item: UploadItem) =>
+  item.status === "queued" || item.status === "uploading" || item.status === "processing";
+
 function UploadRow({ item }: { item: UploadItem }) {
   const { t, i18n } = useTranslation("library");
   const queue = useUploadQueue();
@@ -25,10 +28,15 @@ function UploadRow({ item }: { item: UploadItem }) {
           aria-label={t("upload.progressLabel", { name: item.file.name })}
         />
       )}
+      {item.status === "processing" && (
+        // No `value`: the server's time is unknown, so the bar is indeterminate.
+        <progress className={styles.progress} aria-label={t("upload.processingLabel", { name: item.file.name })} />
+      )}
       <span className={item.status === "failed" ? styles.errorText : styles.status}>
         {item.status === "queued" && t("upload.status.queued")}
         {item.status === "uploading" &&
           t("upload.status.uploading", { percent: Math.round(item.progress * 100) })}
+        {item.status === "processing" && t("upload.status.processing")}
         {item.status === "done" && t("upload.status.done")}
         {item.status === "duplicate" && t("upload.status.duplicate")}
         {item.status === "failed" && translateError(i18n, item.error)}
@@ -60,9 +68,9 @@ function UploadRow({ item }: { item: UploadItem }) {
             )}
           </>
         )}
-        {(item.status === "failed" || item.status === "done" || item.status === "queued" || item.status === "uploading") && (
+        {item.status !== "duplicate" && (
           <Button size="small" variant="ghost" onClick={() => queue.dismiss(item.id)}>
-            {item.status === "uploading" || item.status === "queued" ? t("upload.cancel") : t("upload.dismiss")}
+            {isActive(item) ? t("upload.cancel") : t("upload.dismiss")}
           </Button>
         )}
       </div>
@@ -78,7 +86,7 @@ export function UploadPanel() {
   const [collapsed, setCollapsed] = useState(false);
 
   if (items.length === 0) return null;
-  const active = items.filter((item) => item.status === "queued" || item.status === "uploading").length;
+  const active = items.filter(isActive).length;
 
   return (
     <section className={styles.panel} aria-label={t("upload.title")}>

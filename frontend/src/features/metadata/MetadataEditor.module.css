@@ -1,0 +1,15 @@
+.form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.push {
+  margin-left: auto;
+}

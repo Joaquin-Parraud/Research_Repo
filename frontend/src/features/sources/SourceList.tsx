@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { LibraryTree } from "../../api/library";
+import type { ScopeKind } from "../bibliography/bibliography";
+import { BibliographyDialog } from "../bibliography/BibliographyDialog";
 import { Button } from "../../components/Button";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { EmptyState } from "../../components/EmptyState";
@@ -17,6 +19,7 @@ import { AddSourceDialog } from "./AddSourceDialog";
 import { SourceRow } from "./SourceRow";
 import {
   applySelection,
+  filterNeedsReview,
   hasMetadataColumns,
   sortSources,
   type SelectionState,
@@ -25,11 +28,14 @@ import {
 } from "./selection";
 import styles from "./SourceList.module.css";
 
+const SORT_KEYS: readonly SortKey[] = ["title", "authors", "year", "added"];
+
 interface FolderSelection extends SelectionState {
   folderId: string | null;
 }
 
 interface Props {
+  project: { id: string; name: string; slug: string };
   projectId: string;
   folderId: string | null;
   tree: LibraryTree;
@@ -37,7 +43,7 @@ interface Props {
   openSourceId: string | null;
 }
 
-export function SourceList({ projectId, folderId, tree, canWrite, openSourceId }: Props) {
+export function SourceList({ project, projectId, folderId, tree, canWrite, openSourceId }: Props) {
   const { t, i18n } = useTranslation("library");
   const toast = useToast();
   const { compare } = useFormatters();
@@ -57,14 +63,21 @@ export function SourceList({ projectId, folderId, tree, canWrite, openSourceId }
   const [adding, setAdding] = useState(false);
   const [moveIds, setMoveIds] = useState<string[] | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [onlyNeedsReview, setOnlyNeedsReview] = useState(false);
+  const [exporting, setExporting] = useState<ScopeKind | null>(null);
 
   const inFolder = useMemo(
     () => tree.sources.filter((source) => source.folder_id === folderId),
     [tree.sources, folderId],
   );
+  const reviewCount = useMemo(() => filterNeedsReview(inFolder).length, [inFolder]);
+  const shown = useMemo(
+    () => (onlyNeedsReview ? filterNeedsReview(inFolder) : inFolder),
+    [inFolder, onlyNeedsReview],
+  );
   const sorted = useMemo(
-    () => sortSources(inFolder, sortKey, direction, compare),
-    [inFolder, sortKey, direction, compare],
+    () => sortSources(shown, sortKey, direction, compare),
+    [shown, sortKey, direction, compare],
   );
   const orderedIds = useMemo(() => sorted.map((source) => source.id), [sorted]);
   const showMetadata = hasMetadataColumns(inFolder);
@@ -121,15 +134,20 @@ export function SourceList({ projectId, folderId, tree, canWrite, openSourceId }
               {t("sources.add")}
             </Button>
           )}
+          <Button size="small" onClick={() => setExporting(folderId ? "folder" : "project")}>
+            {t("sources.export")}
+          </Button>
           <span className={styles.spacer} />
           <label className={styles.sort}>
             {t("sources.sort.label")}
             <select
               className={styles.sortSelect}
               value={sortKey}
-              onChange={(event) => setSortKey(event.target.value === "added" ? "added" : "title")}
+              onChange={(event) => setSortKey(SORT_KEYS.find((key) => key === event.target.value) ?? "title")}
             >
               <option value="title">{t("sources.sort.title")}</option>
+              <option value="authors">{t("sources.sort.authors")}</option>
+              <option value="year">{t("sources.sort.year")}</option>
               <option value="added">{t("sources.sort.added")}</option>
             </select>
           </label>
@@ -143,7 +161,7 @@ export function SourceList({ projectId, folderId, tree, canWrite, openSourceId }
           </Button>
         </div>
         <div className={styles.controls}>
-          {canWrite && orderedIds.length > 0 && (
+          {orderedIds.length > 0 && (
             <label className={styles.sort}>
               <input
                 type="checkbox"
@@ -159,17 +177,32 @@ export function SourceList({ projectId, folderId, tree, canWrite, openSourceId }
               {t("sources.selectAll")}
             </label>
           )}
-          <span className={styles.summary}>{t("sources.count", { count: inFolder.length })}</span>
+          <label className={styles.sort}>
+            <input
+              type="checkbox"
+              checked={onlyNeedsReview}
+              onChange={(event) => setOnlyNeedsReview(event.target.checked)}
+            />
+            {t("sources.filter.needsReview", { count: reviewCount })}
+          </label>
+          <span className={styles.summary}>{t("sources.count", { count: shown.length })}</span>
         </div>
-        {canWrite && selectedIds.length > 0 && (
+        {selectedIds.length > 0 && (
           <div className={styles.bulk} role="group" aria-label={t("sources.bulk.label")}>
             <span>{t("sources.bulk.selected", { count: selectedIds.length })}</span>
-            <Button size="small" onClick={() => setMoveIds(selectedIds)}>
-              {t("sources.bulk.move")}
+            {canWrite && (
+              <Button size="small" onClick={() => setMoveIds(selectedIds)}>
+                {t("sources.bulk.move")}
+              </Button>
+            )}
+            <Button size="small" onClick={() => setExporting("sources")}>
+              {t("sources.bulk.export")}
             </Button>
-            <Button size="small" variant="danger" onClick={() => setConfirmDelete(true)}>
-              {t("sources.bulk.delete")}
-            </Button>
+            {canWrite && (
+              <Button size="small" variant="danger" onClick={() => setConfirmDelete(true)}>
+                {t("sources.bulk.delete")}
+              </Button>
+            )}
             <Button size="small" variant="ghost" onClick={clearSelection}>
               {t("sources.bulk.clear")}
             </Button>
@@ -178,10 +211,14 @@ export function SourceList({ projectId, folderId, tree, canWrite, openSourceId }
       </div>
 
       {sorted.length === 0 ? (
-        <EmptyState
-          title={t("sources.empty.title")}
-          body={canWrite ? t("sources.empty.bodyEditor") : t("sources.empty.bodyViewer")}
-        />
+        onlyNeedsReview && inFolder.length > 0 ? (
+          <EmptyState title={t("sources.filter.emptyTitle")} body={t("sources.filter.emptyBody")} />
+        ) : (
+          <EmptyState
+            title={t("sources.empty.title")}
+            body={canWrite ? t("sources.empty.bodyEditor") : t("sources.empty.bodyViewer")}
+          />
+        )
       ) : (
         <ul className={styles.list} aria-label={t("sources.listLabel")}>
           {sorted.map((source) => (
@@ -230,6 +267,17 @@ export function SourceList({ projectId, folderId, tree, canWrite, openSourceId }
             setMoveIds(null);
             actions.move.mutate({ ids, folderId: target });
           }}
+        />
+      )}
+
+      {exporting && (
+        <BibliographyDialog
+          project={project}
+          folders={tree.folders}
+          folderId={folderId}
+          selectedIds={selectedIds}
+          initialScope={exporting}
+          onClose={() => setExporting(null)}
         />
       )}
 

@@ -6,6 +6,7 @@ import { Button } from "../../components/Button";
 import { Dialog } from "../../components/Dialog";
 import forms from "../../components/Form.module.css";
 import { useAppNavigation } from "../../hooks/useAppNavigation";
+import { CopyProjectDialog } from "./CopyProjectDialog";
 import { useDeleteProject, useUpdateProject } from "./useProjects";
 
 interface Props {
@@ -22,6 +23,7 @@ export function ProjectSettingsDialog({ project, onClose }: Props) {
   const [description, setDescription] = useState(project.description);
   const [locale, setLocale] = useState<CitationLocale>(project.citation_locale);
   const [confirmName, setConfirmName] = useState("");
+  const [copying, setCopying] = useState(false);
   const archived = project.archived_at !== null;
 
   function save(event: FormEvent) {
@@ -43,13 +45,17 @@ export function ProjectSettingsDialog({ project, onClose }: Props) {
       wide
       footer={
         <>
-          <Button onClick={onClose}>{t("common:cancel")}</Button>
-          <Button variant="primary" type="submit" form="project-settings-form" disabled={update.isPending || !name.trim()}>
-            {t("common:save")}
-          </Button>
+          <Button onClick={onClose}>{archived ? t("common:close") : t("common:cancel")}</Button>
+          {!archived && (
+            <Button variant="primary" type="submit" form="project-settings-form" disabled={update.isPending || !name.trim()}>
+              {t("common:save")}
+            </Button>
+          )}
         </>
       }
     >
+      {archived && <p className={forms.hint}>{t("projects.settings.archivedNote")}</p>}
+      {!archived && (
       <form id="project-settings-form" onSubmit={save} style={{ display: "grid", gap: "0.75rem" }}>
         <label className={forms.field}>
           {t("projects.field.name")}
@@ -87,6 +93,15 @@ export function ProjectSettingsDialog({ project, onClose }: Props) {
           </span>
         </div>
       </form>
+      )}
+
+      <div className={forms.section}>
+        <h3 className={forms.sectionTitle}>{t("projects.copy.title")}</h3>
+        <p className={forms.hint}>{t("projects.copy.description")}</p>
+        <div>
+          <Button onClick={() => setCopying(true)}>{t("projects.copy.action")}</Button>
+        </div>
+      </div>
 
       <div className={forms.section}>
         <h3 className={forms.sectionTitle}>
@@ -138,6 +153,7 @@ export function ProjectSettingsDialog({ project, onClose }: Props) {
       <p role="alert" className={forms.error}>
         {error ? translateError(i18n, error) : null}
       </p>
+      {copying && <CopyProjectDialog project={project} onClose={() => setCopying(false)} onCopied={onClose} />}
     </Dialog>
   );
 }

@@ -4,12 +4,21 @@ import uuid
 
 from fastapi import APIRouter, Request, Response, status
 
-from research_repo.api.deps import AppSettings, CurrentUser, DbSession, Storage
+from research_repo.api.deps import (
+    AppSettings,
+    CurrentUser,
+    DbSession,
+    Lookup,
+    Processor,
+    Storage,
+)
 from research_repo.api.uploads import read_source_upload
 from research_repo.core.errors import ValidationFailed
+from research_repo.schemas.citations import BibliographyIn, BibliographyOut
 from research_repo.schemas.library import (
     FolderCreate,
     FolderOut,
+    ProjectCopy,
     ProjectCreate,
     ProjectOut,
     ProjectUpdate,
@@ -18,9 +27,12 @@ from research_repo.schemas.library import (
     SourceOut,
     TreeOut,
 )
+from research_repo.services import citations as citations_service
 from research_repo.services import folders as folders_service
 from research_repo.services import projects as projects_service
 from research_repo.services import sources as sources_service
+from research_repo.services.folders import UNSET
+from research_repo.services.project_copy import copy_project
 from research_repo.services.tree import get_tree
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -67,6 +79,38 @@ async def delete_project(
 ) -> Response:
     await projects_service.delete_project(db, storage, user_id=user.id, project_id=project_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{project_id}/copy", status_code=status.HTTP_201_CREATED)
+async def copy(
+    project_id: uuid.UUID, body: ProjectCopy, user: CurrentUser, db: DbSession, storage: Storage
+) -> ProjectOut:
+    """A new project owned by the caller with this project's tree, tags and sources (the
+    stored files are shared, not copied). Works for archived projects."""
+    view = await copy_project(db, storage, user_id=user.id, project_id=project_id, name=body.name)
+    return ProjectOut.of(view)
+
+
+@router.post("/{project_id}/bibliography")
+async def bibliography(
+    project_id: uuid.UUID,
+    body: BibliographyIn,
+    user: CurrentUser,
+    db: DbSession,
+    processor: Processor,
+) -> BibliographyOut:
+    """APA 7 reference list as text, HTML, BibTeX or CSL-JSON."""
+    result = await citations_service.export_bibliography(
+        db,
+        processor,
+        user_id=user.id,
+        project_id=project_id,
+        format=body.format,
+        source_ids=body.source_ids,
+        folder_id=body.folder_id if "folder_id" in body.model_fields_set else UNSET,
+        include_subfolders=body.include_subfolders,
+    )
+    return BibliographyOut.of(result)
 
 
 @router.get("/{project_id}/readme")
@@ -139,6 +183,7 @@ async def create_source(
     db: DbSession,
     storage: Storage,
     settings: AppSettings,
+    lookup: Lookup,
 ) -> SourceOut:
     """Multipart form: ``file`` (PDF, optional), ``folder_id``, ``title`` (required without a
     file), ``allow_duplicate`` ("true" to add a file already in this project). The body is
@@ -156,6 +201,7 @@ async def create_source(
             folder_id=_optional_uuid(upload.fields.get("folder_id"), "folder_id"),
             staged=upload.file,
             allow_duplicate=upload.fields.get("allow_duplicate", "").strip().lower() == "true",
+            lookup=lookup,
         )
     finally:
         if upload.file is not None:

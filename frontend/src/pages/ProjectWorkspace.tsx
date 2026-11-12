@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { canWrite } from "../api/projects";
 import { translateError } from "../api/translateError";
 import { AppLink } from "../components/AppLink";
 import { EmptyState } from "../components/EmptyState";
@@ -8,7 +8,10 @@ import { FolderTree } from "../features/folders/FolderTree";
 import { LibraryDnd } from "../features/folders/LibraryDnd";
 import { useExpandedFolders } from "../features/folders/useExpandedFolders";
 import { useTree } from "../features/library/useLibrary";
+import { BibliographyDialog } from "../features/bibliography/BibliographyDialog";
+import { Button } from "../components/Button";
 import { ProjectList } from "../features/projects/ProjectList";
+import { useProjectAccess } from "../features/projects/useProjectAccess";
 import { useProject } from "../features/projects/useProjects";
 import { ReadmePanel } from "../features/readme/ReadmePanel";
 import { SourceList } from "../features/sources/SourceList";
@@ -27,7 +30,10 @@ export function ProjectWorkspace({ projectId, folderId, sourceId }: Props) {
   const project = useProject(projectId);
   const tree = useTree(projectId);
   const expansion = useExpandedFolders(projectId);
-  const writable = project.data ? canWrite(project.data.role) : false;
+  const access = useProjectAccess(projectId);
+  // One derived flag for every write affordance: role allows it AND the project is not archived.
+  const writable = access?.canWrite ?? false;
+  const [exportingProject, setExportingProject] = useState(false);
 
   const leftTop = (
     <div className={styles.projects}>
@@ -68,13 +74,30 @@ export function ProjectWorkspace({ projectId, folderId, sourceId }: Props) {
         <div className={styles.folders}>
           <Pane title={t("folders.title")}>
             {tree.data && project.data ? (
-              <FolderTree
-                projectId={projectId}
-                tree={tree.data}
-                selectedFolderId={folderId}
-                canWrite={writable}
-                expansion={expansion}
-              />
+              <>
+                <FolderTree
+                  projectId={projectId}
+                  tree={tree.data}
+                  selectedFolderId={folderId}
+                  canWrite={writable}
+                  expansion={expansion}
+                />
+                <div className={styles.paneFooter}>
+                  <Button size="small" onClick={() => setExportingProject(true)}>
+                    {t("metadata:bibliography.exportProject")}
+                  </Button>
+                </div>
+                {exportingProject && (
+                  <BibliographyDialog
+                    project={project.data}
+                    folders={tree.data.folders}
+                    folderId={folderId}
+                    selectedIds={[]}
+                    initialScope="project"
+                    onClose={() => setExportingProject(false)}
+                  />
+                )}
+              </>
             ) : tree.isError ? (
               <EmptyState body={translateError(i18n, tree.error)} />
             ) : (
@@ -87,6 +110,7 @@ export function ProjectWorkspace({ projectId, folderId, sourceId }: Props) {
         <Pane title={t("sources.title")}>
           {tree.data && project.data ? (
             <SourceList
+              project={project.data}
               projectId={projectId}
               folderId={folderId}
               tree={tree.data}
@@ -102,7 +126,12 @@ export function ProjectWorkspace({ projectId, folderId, sourceId }: Props) {
       </div>
       <div className={styles.right}>
         {sourceId ? (
-          <SourcePane projectId={projectId} sourceId={sourceId} canWrite={writable} />
+          <SourcePane
+            projectId={projectId}
+            sourceId={sourceId}
+            canWrite={writable}
+            canSaveProgress={access?.canSaveProgress ?? false}
+          />
         ) : (
           <Pane title={t("readme.title")}>
             {project.data ? (

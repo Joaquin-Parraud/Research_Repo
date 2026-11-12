@@ -1,0 +1,48 @@
+.panel {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--hover);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.scroll {
+  overflow: auto;
+  max-height: 14rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.table th,
+.table td {
+  padding: 0.25rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+.table thead th {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.table tbody th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.none {
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}

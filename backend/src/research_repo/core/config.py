@@ -27,6 +27,20 @@ class Settings(BaseSettings):
     owner_password: SecretStr | None = None
     owner_display_name: str = ""
 
+    # Metadata suggestions on upload (FR-S2): Crossref lookups by DOI. When disabled, no
+    # outbound request is ever made and only the PDF's embedded metadata is used.
+    metadata_lookup_enabled: bool = True
+    # Total time budget of one suggestion run (PDF inspection + Crossref), in seconds.
+    metadata_lookup_timeout_seconds: float = Field(default=6.0, gt=0, le=120)
+    # Contact address sent to Crossref in the User-Agent ("polite pool"); optional.
+    crossref_mailto: str | None = None
+
+    # Citation service (citeproc-js with the official APA style), on the internal network.
+    citeproc_url: str = "http://citeproc:8080"
+    # Longest wait for one rendering request; a large exported bibliography takes seconds.
+    # Connecting has its own short limit (2 s).
+    citeproc_timeout_seconds: float = Field(default=30.0, gt=0, le=600)
+
     log_level: str = "INFO"
 
     @property

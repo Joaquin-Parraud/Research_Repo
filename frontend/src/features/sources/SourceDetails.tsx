@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { Source } from "../../api/library";
 import { translateError } from "../../api/translateError";
@@ -6,7 +6,12 @@ import { Button } from "../../components/Button";
 import forms from "../../components/Form.module.css";
 import { useToast } from "../../components/Toast";
 import { useFormatters } from "../../hooks/useFormatters";
+import { CitationPanel } from "../citation/CitationPanel";
 import { useUpdateSource } from "../library/useLibrary";
+import { MetadataEditor } from "../metadata/MetadataEditor";
+import { StatusBadge } from "../metadata/StatusBadge";
+import { useUploadValidation } from "../upload/useUploadFiles";
+import { useUploadItems, useUploadQueue } from "../upload/UploadProvider";
 import { TagsEditor } from "./TagsEditor";
 import styles from "./SourceDetails.module.css";
 
@@ -16,9 +21,26 @@ interface Props {
   canWrite: boolean;
 }
 
-/** Title (editable), tags editor and file info for the open source. */
+/** Title (editable), metadata status and editor, tags, file info, attach-PDF and the citation panel. */
 export function SourceDetails({ projectId, source, canWrite }: Props) {
   const { t, i18n } = useTranslation("library");
+  const { t: tm } = useTranslation("metadata");
+  const queue = useUploadQueue();
+  const validate = useUploadValidation();
+  const attachInput = useRef<HTMLInputElement>(null);
+  const [editingMetadata, setEditingMetadata] = useState(false);
+  const attaching = useUploadItems().find(
+    (item) =>
+      item.attachToSourceId === source.id &&
+      (item.status === "queued" || item.status === "uploading" || item.status === "processing"),
+  );
+
+  function attachFile(event: ChangeEvent<HTMLInputElement>) {
+    const [file] = validate(Array.from(event.target.files ?? []).slice(0, 1));
+    event.target.value = "";
+    if (file) queue.attach(projectId, source.id, file);
+  }
+
   const { bytes } = useFormatters();
   const toast = useToast();
   const update = useUpdateSource(projectId);
@@ -78,6 +100,41 @@ export function SourceDetails({ projectId, source, canWrite }: Props) {
         </div>
       )}
 
+      <div className={styles.metaRow}>
+        <StatusBadge status={source.metadata_status} />
+        {canWrite && (
+          <Button
+            size="small"
+            variant={source.metadata_status === "confirmed" ? "default" : "primary"}
+            onClick={() => setEditingMetadata(true)}
+          >
+            {tm("details.editMetadata")}
+          </Button>
+        )}
+        {canWrite && !source.has_file && (
+          <>
+            <Button size="small" disabled={attaching !== undefined} onClick={() => attachInput.current?.click()}>
+              {tm("details.attachPdf")}
+            </Button>
+            <input
+              ref={attachInput}
+              type="file"
+              accept="application/pdf,.pdf"
+              hidden
+              aria-label={tm("details.attachInput")}
+              onChange={attachFile}
+            />
+          </>
+        )}
+        {attaching && (
+          <span role="status" className={styles.progress}>
+            {attaching.status === "processing"
+              ? t("upload.status.processing")
+              : t("upload.status.uploading", { percent: Math.round(attaching.progress * 100) })}
+          </span>
+        )}
+      </div>
+
       <div>
         <div className={styles.label}>{t("tags.heading")}</div>
         <TagsEditor
@@ -112,6 +169,18 @@ export function SourceDetails({ projectId, source, canWrite }: Props) {
           </div>
         )}
       </dl>
+
+      <CitationPanel
+        projectId={projectId}
+        sourceId={source.id}
+        updatedAt={source.updated_at}
+        status={source.metadata_status}
+        onEditMetadata={canWrite ? () => setEditingMetadata(true) : undefined}
+      />
+
+      {editingMetadata && (
+        <MetadataEditor projectId={projectId} source={source} onClose={() => setEditingMetadata(false)} />
+      )}
     </div>
   );
 }

@@ -1,8 +1,8 @@
-"""Request and response bodies for projects, folders and sources (M1)."""
+"""Request and response bodies for projects, folders and sources (M1, M2)."""
 
 import uuid
 from datetime import datetime
-from typing import Annotated, ClassVar, Literal, Self
+from typing import Annotated, Any, ClassVar, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -81,6 +81,12 @@ class ProjectOut(BaseModel):
             role=view.role,
             source_count=view.source_count,
         )
+
+
+class ProjectCopy(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: Name
 
 
 class ReadmeIn(BaseModel):
@@ -175,6 +181,8 @@ class SourceOut(BaseModel):
     authors_text: str
     year: int | None
     citation_key: str
+    citation_key_auto: bool
+    csl: dict[str, Any]
     doi: str | None
     metadata_status: MetadataStatus
     text_status: TextStatus
@@ -196,6 +204,8 @@ class SourceOut(BaseModel):
             authors_text=s.authors_text,
             year=s.year,
             citation_key=s.citation_key,
+            citation_key_auto=s.citation_key_auto,
+            csl=s.csl,
             doi=s.doi,
             metadata_status=s.metadata_status,
             text_status=s.text_status,
@@ -217,7 +227,8 @@ class SourceOut(BaseModel):
 
 
 class SourceUpdate(_Patch):
-    nullable: ClassVar[frozenset[str]] = frozenset({"folder_id"})
+    # ``csl: null`` is passed on so that the service rejects it as invalid CSL.
+    nullable: ClassVar[frozenset[str]] = frozenset({"folder_id", "citation_key", "csl"})
 
     title: Name | None = None
     folder_id: uuid.UUID | None = None
@@ -225,6 +236,10 @@ class SourceUpdate(_Patch):
     tags: Annotated[list[Annotated[str, Field(max_length=1000)]], Field(max_length=1000)] | None = (
         None
     )
+    # Any JSON value: the service validates it and answers metadata.invalid_csl.
+    csl: Any = None
+    metadata_status: Literal["confirmed"] | None = None
+    citation_key: Annotated[str, Field(max_length=200)] | None = None
 
 
 class SourceMove(BaseModel):

@@ -1,0 +1,17 @@
+{
+  "name": "research-repo-citeproc",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Internal APA 7 citation service for Research Repo (citeproc-js + official CSL style)",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "citeproc": "2.4.63"
+  }
+}

@@ -239,13 +239,20 @@ describe("viewer role", () => {
     await screen.findByRole("list", { name: "Sources in this folder" });
 
     expect(screen.queryByRole("button", { name: "Add source" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("checkbox", { name: /^Select/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^Rename/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^Move/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("toolbar", { name: "Folder actions" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Edit README" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Settings for/ })).not.toBeInTheDocument();
     expect(screen.getByRole("tree")).toBeInTheDocument();
+
+    // Selecting is a read action (it feeds the bibliography export); only moving and deleting are writes.
+    await userEvent.click(screen.getByRole("checkbox", { name: "Select “Alpha paper”" }));
+    const bulk = screen.getByRole("group", { name: "Actions for selected sources" });
+    expect(within(bulk).getByRole("button", { name: "Export selected" })).toBeInTheDocument();
+    expect(within(bulk).queryByRole("button", { name: "Move to…" })).not.toBeInTheDocument();
+    expect(within(bulk).queryByRole("button", { name: "Delete" })).not.toBeInTheDocument();
+    await userEvent.click(within(bulk).getByRole("button", { name: "Clear selection" }));
 
     await userEvent.click(screen.getByRole("button", { name: "Gamma report citation only" }));
     expect(await screen.findByText("policy")).toBeInTheDocument();

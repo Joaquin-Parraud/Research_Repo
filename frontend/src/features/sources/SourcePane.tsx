@@ -14,11 +14,14 @@ const PdfViewer = lazy(() => import("../viewer/PdfViewer").then((module) => ({ d
 interface Props {
   projectId: string;
   sourceId: string;
+  /** Content may be changed (role allows it and the project is not archived). */
   canWrite: boolean;
+  /** Reading position is saved; still true in an archived project. */
+  canSaveProgress: boolean;
 }
 
 /** Right side when a source is open: the PDF viewer (or a citation-only card) plus its details. */
-export function SourcePane({ projectId, sourceId, canWrite }: Props) {
+export function SourcePane({ projectId, sourceId, canWrite, canSaveProgress }: Props) {
   const { t, i18n } = useTranslation(["shell", "library", "viewer"]);
   const { closeSource } = useAppNavigation();
   const source = useSource(sourceId);
@@ -61,7 +64,7 @@ export function SourcePane({ projectId, sourceId, canWrite }: Props) {
               key={data.id}
               sourceId={data.id}
               initialPage={data.last_page_read}
-              canSaveProgress={canWrite}
+              canSaveProgress={canSaveProgress}
               onClose={closeSource}
             />
           </Suspense>

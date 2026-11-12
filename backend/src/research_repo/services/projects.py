@@ -13,7 +13,7 @@ from research_repo.core.storage import FileStorage
 from research_repo.core.text import slugify, strip_control, with_suffix
 from research_repo.models import Folder, Membership, Project, ProjectRole, Source
 from research_repo.models.enums import CITATION_LOCALES
-from research_repo.services.access import require_project_role
+from research_repo.services.access import ProjectArchived, require_project_role
 from research_repo.services.files import delete_unreferenced_files
 
 MAX_NAME_LENGTH = 200
@@ -90,9 +90,10 @@ async def get_project(
     return await _view(db, project_id, user_id)
 
 
-async def create_project(
+async def insert_project(
     db: AsyncSession, *, user_id: uuid.UUID, name: str, description: str = ""
-) -> ProjectView:
+) -> Project:
+    """Insert a project (slug allocated) with the user as owner; flushed, not committed."""
     name = _clean_name(name)
     description = _clean_description(description)
     base = slugify(name, max_length=_SLUG_LENGTH, fallback="project")
@@ -110,9 +111,17 @@ async def create_project(
             taken.add(slug)
             continue
         db.add(Membership(user_id=user_id, project_id=project.id, role=ProjectRole.owner))
-        await db.commit()
-        return await _view(db, project.id, user_id)
+        await db.flush()
+        return project
     raise RuntimeError("could not allocate a project slug")
+
+
+async def create_project(
+    db: AsyncSession, *, user_id: uuid.UUID, name: str, description: str = ""
+) -> ProjectView:
+    project = await insert_project(db, user_id=user_id, name=name, description=description)
+    await db.commit()
+    return await _view(db, project.id, user_id)
 
 
 async def update_project(
@@ -125,11 +134,21 @@ async def update_project(
     citation_locale: str | None = None,
     archived: bool | None = None,
 ) -> ProjectView:
-    """Owner-only settings. ``None`` leaves a field unchanged. The slug never changes."""
+    """Owner-only settings. ``None`` leaves a field unchanged. The slug never changes.
+
+    An archived project is read-only: the only change accepted is ``archived=False`` alone.
+    """
     await require_project_role(
-        db, user_id=user_id, project_id=project_id, minimum=ProjectRole.owner
+        db, user_id=user_id, project_id=project_id, minimum=ProjectRole.owner, allow_archived=True
     )
     project = await db.get_one(Project, project_id, with_for_update=True)
+    if project.archived_at is not None and (
+        archived is not False
+        or name is not None
+        or description is not None
+        or citation_locale is not None
+    ):
+        raise ProjectArchived
     if name is not None:
         project.name = _clean_name(name)
     if description is not None:
@@ -151,9 +170,10 @@ async def update_project(
 async def delete_project(
     db: AsyncSession, storage: FileStorage, *, user_id: uuid.UUID, project_id: uuid.UUID
 ) -> None:
-    """Delete a project with its folders and sources, and stored files no one else uses."""
+    """Delete a project with its folders and sources, and stored files no one else uses.
+    Allowed for archived projects."""
     await require_project_role(
-        db, user_id=user_id, project_id=project_id, minimum=ProjectRole.owner
+        db, user_id=user_id, project_id=project_id, minimum=ProjectRole.owner, allow_archived=True
     )
     async with storage.lock:
         await db.get_one(Project, project_id, with_for_update=True)

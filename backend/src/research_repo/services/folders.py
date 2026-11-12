@@ -132,6 +132,13 @@ async def _ancestor_ids(db: AsyncSession, folder_id: uuid.UUID) -> set[uuid.UUID
     return set((await db.scalars(select(chain.c.id))).all())
 
 
+async def descendant_ids(db: AsyncSession, folder_id: uuid.UUID) -> set[uuid.UUID]:
+    """The folder itself and every folder below it (recursive CTE)."""
+    tree = select(Folder.id).where(Folder.id == folder_id).cte("tree", recursive=True)
+    tree = tree.union_all(select(Folder.id).join(tree, Folder.parent_id == tree.c.id))
+    return set((await db.scalars(select(tree.c.id))).all())
+
+
 async def list_folders(db: AsyncSession, project_id: uuid.UUID) -> list[Folder]:
     """All folders of a project (caller has checked access), parents' order irrelevant."""
     return list(

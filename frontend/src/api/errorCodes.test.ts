@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { resources } from "../i18n";
 
-/** Every code the M1 backend contract can return. */
+/** Every code the M1 and M2 backend contracts can return. */
 const CODES = [
   "folder.name_conflict",
   "folder.cycle",
@@ -17,6 +17,16 @@ const CODES = [
   "resource.not_found",
   "auth.forbidden",
   "server.unavailable",
+  "metadata.invalid_csl",
+  "source.citation_key_conflict",
+  "metadata.invalid_doi",
+  "metadata.doi_not_found",
+  "metadata.lookup_failed",
+  "metadata.lookup_disabled",
+  "citation.unavailable",
+  "citation.render_failed",
+  "source.already_has_file",
+  "project.archived",
 ] as const;
 
 describe("error code translations", () => {

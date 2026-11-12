@@ -4,6 +4,8 @@ import { EmptyState } from "../components/EmptyState";
 import { Header } from "../components/Header";
 import { Pane } from "../components/Pane";
 import { ToastProvider } from "../components/Toast";
+import { ArchivedBanner } from "../features/projects/ArchivedBanner";
+import { ArchivedConflictWatcher } from "../features/projects/ArchivedConflictWatcher";
 import { ProjectList } from "../features/projects/ProjectList";
 import { UploadPanel } from "../features/upload/UploadPanel";
 import { UploadProvider } from "../features/upload/UploadProvider";
@@ -46,12 +48,16 @@ export function AppShell({ user }: { user: User }) {
         <UploadProvider>
           <div className={styles.shell}>
             <Header user={user} />
-            <main className={styles.panes}>
-              {projectId ? (
-                <ProjectWorkspace projectId={projectId} folderId={folderId} sourceId={sourceId} />
-              ) : (
-                <HomePanes />
-              )}
+            <ArchivedConflictWatcher />
+            <main className={styles.main}>
+              {projectId && <ArchivedBanner projectId={projectId} />}
+              <div className={styles.panes}>
+                {projectId ? (
+                  <ProjectWorkspace projectId={projectId} folderId={folderId} sourceId={sourceId} />
+                ) : (
+                  <HomePanes />
+                )}
+              </div>
             </main>
           </div>
           <UploadPanel />

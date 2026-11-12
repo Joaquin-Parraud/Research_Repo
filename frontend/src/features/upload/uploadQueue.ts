@@ -1,11 +1,14 @@
 import { ApiError } from "../../api/errors";
 
-export type UploadStatus = "queued" | "uploading" | "done" | "failed" | "duplicate";
+/** `processing`: every byte is sent, the server is still looking up metadata. */
+export type UploadStatus = "queued" | "uploading" | "processing" | "done" | "failed" | "duplicate";
 
 export interface UploadItem {
   id: string;
   projectId: string;
   folderId: string | null;
+  /** Set when the file is attached to an existing citation-only source instead of creating one. */
+  attachToSourceId: string | null;
   file: File;
   status: UploadStatus;
   /** 0..1 */
@@ -19,12 +22,15 @@ export interface UploadItem {
 export interface SendArgs {
   item: UploadItem;
   onProgress: (fraction: number) => void;
+  /** Call when all bytes have been sent and only the server's answer is awaited. */
+  onUploaded: () => void;
   signal: AbortSignal;
 }
 
 export interface UploadQueueOptions {
   send: (args: SendArgs) => Promise<unknown>;
   onItemDone?: (item: UploadItem) => void;
+  onItemFailed?: (item: UploadItem, error: unknown) => void;
   concurrency?: number;
 }
 
@@ -32,6 +38,8 @@ export interface UploadQueue {
   subscribe: (listener: () => void) => () => void;
   getSnapshot: () => readonly UploadItem[];
   add: (projectId: string, folderId: string | null, files: readonly File[]) => void;
+  /** Queues a PDF for an existing citation-only source. */
+  attach: (projectId: string, sourceId: string, file: File) => void;
   retry: (id: string) => void;
   /** Duplicate flow: upload again with `allow_duplicate`. */
   addAnyway: (id: string) => void;
@@ -44,6 +52,27 @@ export const DUPLICATE_CODE = "source.duplicate_file";
 
 export function isPdfFile(file: File): boolean {
   return file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+}
+
+const BYTES_PER_MB = 1024 * 1024;
+
+export interface UploadPartition {
+  accepted: File[];
+  notPdf: File[];
+  tooLarge: File[];
+}
+
+/**
+ * Client-side validation before anything is sent: only PDFs, and nothing above the server's
+ * limit (`maxUploadMb`, unknown until the config has loaded; the server still enforces it).
+ */
+export function partitionUploadable(files: readonly File[], maxUploadMb: number | undefined): UploadPartition {
+  const { accepted: pdfs, rejected: notPdf } = partitionPdfs(files);
+  const limit = maxUploadMb === undefined ? Infinity : maxUploadMb * BYTES_PER_MB;
+  const accepted: File[] = [];
+  const tooLarge: File[] = [];
+  for (const file of pdfs) (file.size > limit ? tooLarge : accepted).push(file);
+  return { accepted, notPdf, tooLarge };
 }
 
 /** Splits files into PDFs and everything else (rejected client-side). */
@@ -69,7 +98,7 @@ export function createUploadQueue(options: UploadQueueOptions): UploadQueue {
   };
 
   function pump() {
-    let active = items.filter((item) => item.status === "uploading").length;
+    let active = items.filter((item) => item.status === "uploading" || item.status === "processing").length;
     for (const item of items) {
       if (active >= concurrency) break;
       if (item.status !== "queued") continue;
@@ -90,6 +119,7 @@ export function createUploadQueue(options: UploadQueueOptions): UploadQueue {
         item: current,
         signal: controller.signal,
         onProgress: (fraction) => update(id, { progress: Math.min(1, Math.max(0, fraction)) }),
+        onUploaded: () => update(id, { status: "processing", progress: 1 }),
       });
       update(id, { status: "done", progress: 1 });
       options.onItemDone?.(current);
@@ -104,11 +134,35 @@ export function createUploadQueue(options: UploadQueueOptions): UploadQueue {
         });
       } else {
         update(id, { status: "failed", error });
+        options.onItemFailed?.(current, error);
       }
     } finally {
       controllers.delete(id);
       pump();
     }
+  }
+
+  function enqueue(
+    projectId: string,
+    folderId: string | null,
+    attachToSourceId: string | null,
+    files: readonly File[],
+  ) {
+    const created = files.map<UploadItem>((file) => ({
+      id: `upload-${++counter}`,
+      projectId,
+      folderId,
+      attachToSourceId,
+      file,
+      status: "queued",
+      progress: 0,
+      error: null,
+      existingSourceId: null,
+      allowDuplicate: false,
+    }));
+    items = [...items, ...created];
+    emit();
+    pump();
   }
 
   return {
@@ -118,20 +172,10 @@ export function createUploadQueue(options: UploadQueueOptions): UploadQueue {
     },
     getSnapshot: () => items,
     add(projectId, folderId, files) {
-      const created = files.map<UploadItem>((file) => ({
-        id: `upload-${++counter}`,
-        projectId,
-        folderId,
-        file,
-        status: "queued",
-        progress: 0,
-        error: null,
-        existingSourceId: null,
-        allowDuplicate: false,
-      }));
-      items = [...items, ...created];
-      emit();
-      pump();
+      enqueue(projectId, folderId, null, files);
+    },
+    attach(projectId, sourceId, file) {
+      enqueue(projectId, null, sourceId, [file]);
     },
     retry(id) {
       update(id, { status: "queued", progress: 0, error: null });
@@ -149,7 +193,9 @@ export function createUploadQueue(options: UploadQueueOptions): UploadQueue {
       pump();
     },
     clearFinished() {
-      items = items.filter((item) => item.status === "queued" || item.status === "uploading");
+      items = items.filter(
+        (item) => item.status === "queued" || item.status === "uploading" || item.status === "processing",
+      );
       emit();
     },
   };

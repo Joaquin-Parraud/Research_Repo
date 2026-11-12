@@ -37,7 +37,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const show = useCallback(
     (message: string, kind: ToastKind = "info") => {
       const id = nextId.current++;
-      setToasts((current) => [...current, { id, kind, message }]);
+      // The same message is never stacked: two handlers reporting one failure show a single toast.
+      setToasts((current) =>
+        current.some((toast) => toast.message === message && toast.kind === kind)
+          ? current
+          : [...current, { id, kind, message }],
+      );
       setTimeout(() => dismiss(id), AUTO_DISMISS_MS);
     },
     [dismiss],

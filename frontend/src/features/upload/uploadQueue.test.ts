@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ApiError } from "../../api/errors";
-import { createUploadQueue, partitionPdfs, type SendArgs } from "./uploadQueue";
+import { createUploadQueue, partitionPdfs, partitionUploadable, type SendArgs } from "./uploadQueue";
 
 const pdf = (name: string) => new File(["%PDF-1.7"], name, { type: "application/pdf" });
 
@@ -117,5 +117,69 @@ describe("upload queue", () => {
     await flush();
     queue.clearFinished();
     expect(status()).toEqual(["b.pdf:uploading"]);
+  });
+});
+
+describe("partitionUploadable", () => {
+  const sized = (name: string, bytes: number, type = "application/pdf") => {
+    const file = new File(["x"], name, { type });
+    Object.defineProperty(file, "size", { value: bytes });
+    return file;
+  };
+  const MB = 1024 * 1024;
+
+  it("rejects PDFs above the configured limit and reports non-PDFs separately", () => {
+    const { accepted, notPdf, tooLarge } = partitionUploadable(
+      [sized("ok.pdf", 5 * MB), sized("exact.pdf", 10 * MB), sized("big.pdf", 10 * MB + 1), sized("a.txt", 1, "text/plain")],
+      10,
+    );
+    expect(accepted.map((f) => f.name)).toEqual(["ok.pdf", "exact.pdf"]);
+    expect(tooLarge.map((f) => f.name)).toEqual(["big.pdf"]);
+    expect(notPdf.map((f) => f.name)).toEqual(["a.txt"]);
+  });
+
+  it("does not check the size until the limit is known", () => {
+    expect(partitionUploadable([sized("huge.pdf", 10_000 * MB)], undefined).accepted).toHaveLength(1);
+  });
+});
+
+describe("processing and attach", () => {
+  it("moves to 'processing' once every byte is sent, and counts as active until the answer arrives", async () => {
+    const { queue, calls, status, done } = setup(1);
+    queue.add("p1", null, [pdf("a.pdf"), pdf("b.pdf")]);
+    calls[0]?.args.onUploaded();
+    expect(status()).toEqual(["a.pdf:processing", "b.pdf:queued"]);
+    expect(queue.getSnapshot()[0]?.progress).toBe(1);
+    calls[0]?.resolve();
+    await flush();
+    expect(status()).toEqual(["a.pdf:done", "b.pdf:uploading"]);
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps processing items when clearing finished ones", async () => {
+    const { queue, calls, status } = setup(2);
+    queue.add("p1", null, [pdf("a.pdf"), pdf("b.pdf")]);
+    calls[0]?.args.onUploaded();
+    calls[1]?.resolve();
+    await flush();
+    queue.clearFinished();
+    expect(status()).toEqual(["a.pdf:processing"]);
+  });
+
+  it("queues an attach for an existing source", () => {
+    const { queue, calls } = setup();
+    queue.attach("p1", "s9", pdf("late.pdf"));
+    expect(calls[0]?.args.item).toMatchObject({ projectId: "p1", attachToSourceId: "s9", folderId: null });
+    queue.add("p1", "f1", [pdf("new.pdf")]);
+    expect(queue.getSnapshot()[1]?.attachToSourceId).toBeNull();
+  });
+
+  it("reports failures other than duplicates through onItemFailed", async () => {
+    const failed = vi.fn();
+    const queue = createUploadQueue({ send: () => Promise.reject(new ApiError("project.archived", 409, "x")), onItemFailed: failed });
+    queue.add("p1", null, [pdf("a.pdf")]);
+    await flush();
+    expect(failed).toHaveBeenCalledTimes(1);
+    expect(failed.mock.calls[0]?.[1]).toMatchObject({ code: "project.archived" });
   });
 });

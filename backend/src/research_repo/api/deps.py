@@ -5,11 +5,13 @@ from typing import Annotated
 from fastapi import Cookie, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from research_repo.citations.processor import CiteprocClient
 from research_repo.core.config import Settings
 from research_repo.core.db import get_db
 from research_repo.core.storage import FileStorage
 from research_repo.models import User
 from research_repo.services import auth as auth_service
+from research_repo.services.metadata import MetadataLookup
 
 SESSION_COOKIE = "rr_session"
 
@@ -38,3 +40,19 @@ def get_storage(request: Request) -> FileStorage:
 
 
 Storage = Annotated[FileStorage, Depends(get_storage)]
+
+
+def get_metadata_lookup(request: Request) -> MetadataLookup:
+    lookup: MetadataLookup = request.app.state.metadata_lookup
+    return lookup
+
+
+Lookup = Annotated[MetadataLookup, Depends(get_metadata_lookup)]
+
+
+def get_citeproc(request: Request) -> CiteprocClient:
+    client: CiteprocClient = request.app.state.citeproc
+    return client
+
+
+Processor = Annotated[CiteprocClient, Depends(get_citeproc)]

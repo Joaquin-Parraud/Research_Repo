@@ -140,7 +140,12 @@ export function useSourceActions(projectId: string) {
   return { move, remove, createCitation };
 }
 
-/** PATCH one source (title, tags, last_page_read) and keep the caches in step. */
+export const citationKey = (id: string) => ["citation", id] as const;
+
+/** Changes to these fields alter what the list shows (title, authors, year, key, status). */
+const LISTED_FIELDS = ["title", "csl", "metadata_status", "citation_key"] as const;
+
+/** PATCH one source (title, tags, metadata, last_page_read) and keep the caches in step. */
 export function useUpdateSource(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -148,7 +153,9 @@ export function useUpdateSource(projectId: string) {
       updateSource(variables.id, variables.input),
     onSuccess: (source, variables) => {
       queryClient.setQueryData(sourceKey(variables.id), source);
-      if (variables.input.title !== undefined) {
+      // The citation needs no explicit invalidation: its query key includes `updated_at`, which the
+      // fresh source in the cache has just changed, so it is fetched again exactly once.
+      if (LISTED_FIELDS.some((field) => variables.input[field] !== undefined)) {
         return queryClient.invalidateQueries({ queryKey: treeKey(projectId) });
       }
       return undefined;

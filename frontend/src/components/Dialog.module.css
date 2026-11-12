@@ -26,6 +26,10 @@
   width: min(100%, 36rem);
 }
 
+.xwide {
+  width: min(100%, 54rem);
+}
+
 .title {
   margin: 0;
   font-size: 1.1rem;

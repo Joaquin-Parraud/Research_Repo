@@ -1,4 +1,5 @@
 import { apiRequest } from "./client";
+import type { CslItem, MetadataStatus } from "./csl";
 
 export interface Folder {
   id: string;
@@ -16,7 +17,7 @@ export interface SourceSummary {
   year: number | null;
   citation_key: string;
   has_file: boolean;
-  metadata_status: string;
+  metadata_status: MetadataStatus;
   text_status: string;
   page_count: number | null;
   created_at: string;
@@ -41,8 +42,12 @@ export interface Source {
   authors_text: string | null;
   year: number | null;
   citation_key: string;
+  /** True while the key is derived from the metadata; false once edited by hand. */
+  citation_key_auto: boolean;
   doi: string | null;
-  metadata_status: string;
+  /** Canonical CSL-JSON metadata. `title`, `authors_text` and `year` are derived from it by the server. */
+  csl: CslItem;
+  metadata_status: MetadataStatus;
   text_status: string;
   last_page_read: number;
   has_file: boolean;
@@ -54,6 +59,11 @@ export interface Source {
 
 export interface UpdateSourceInput {
   title?: string;
+  /** Complete CSL-JSON item; replaces the stored one. */
+  csl?: CslItem;
+  metadata_status?: "confirmed";
+  /** A manual key, or `null` to go back to the automatic one. */
+  citation_key?: string | null;
   folder_id?: string | null;
   last_page_read?: number;
   tags?: string[];

@@ -52,3 +52,15 @@
   text-transform: uppercase;
   color: var(--text-muted);
 }
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.progress {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}

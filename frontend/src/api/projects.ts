@@ -48,3 +48,33 @@ export const putReadme = (id: string, readme_md: string) =>
 /** Editors and owners can change content; viewers can only read. */
 export const canWrite = (role: Role) => role === "owner" || role === "editor";
 export const canManage = (role: Role) => role === "owner";
+
+export const copyProject = (id: string, name: string) =>
+  apiRequest<Project>("POST", `/projects/${id}/copy`, { name });
+
+export interface ProjectAccess {
+  role: Role;
+  archived: boolean;
+  /** Content can be changed: the role allows it and the project is not archived. */
+  canWrite: boolean;
+  /** Owner actions (settings, archive, delete). Still available while archived. */
+  canManage: boolean;
+  /** Reading position is saved for anyone who could write if it were not archived. */
+  canSaveProgress: boolean;
+  /** Copying needs write rights on the source project; archiving does not matter. */
+  canCopy: boolean;
+}
+
+/** The one place that combines role and archived state into what the UI may offer. */
+export function projectAccess(project: Pick<Project, "role" | "archived_at">): ProjectAccess {
+  const archived = project.archived_at !== null;
+  const roleWrites = canWrite(project.role);
+  return {
+    role: project.role,
+    archived,
+    canWrite: roleWrites && !archived,
+    canManage: canManage(project.role),
+    canSaveProgress: roleWrites,
+    canCopy: roleWrites,
+  };
+}

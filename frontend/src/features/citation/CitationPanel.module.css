@@ -1,0 +1,87 @@
+.panel {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+
+.heading {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.body {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.entry {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.reference {
+  margin: 0;
+  font-size: 0.9rem;
+  /* APA reference lists use a hanging indent. */
+  padding-left: 1.5rem;
+  text-indent: -1.5rem;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.inText {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inTextValue {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.empty,
+.muted,
+.notice,
+.fine {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.empty {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: start;
+}
+
+.empty p {
+  margin: 0;
+}
+
+.fine {
+  font-size: 0.75rem;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--danger);
+}

@@ -8,6 +8,8 @@
   "resource.not_found": "No se encontró el elemento solicitado.",
   "auth.forbidden": "No tienes permiso para hacer eso.",
   "project.not_found": "Proyecto no encontrado.",
+  "citation.unavailable": "El servicio de citas no está disponible temporalmente. Inténtalo de nuevo en unos momentos.",
+  "citation.render_failed": "No se pudo dar formato a esta cita. Revisa los metadatos de la fuente.",
   "network": "No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
   "unknown": "Algo salió mal. Inténtalo de nuevo.",
   "folder.name_conflict": "Ya existe una carpeta con ese nombre aquí.",
@@ -18,5 +20,13 @@
   "source.duplicate_file": "Este PDF ya está en el proyecto.",
   "source.no_file": "Esta fuente no tiene un PDF adjunto.",
   "source.move_invalid": "Las fuentes seleccionadas no se pueden mover ahí.",
-  "source.not_found": "No se encontró la fuente. Es posible que se haya eliminado."
+  "source.not_found": "No se encontró la fuente. Es posible que se haya eliminado.",
+  "metadata.invalid_csl": "Los metadatos no son válidos. Revisa que el tipo y el título estén completos.",
+  "source.citation_key_conflict": "Otra fuente de este proyecto ya usa esa clave de cita.",
+  "metadata.invalid_doi": "Eso no parece un DOI válido.",
+  "metadata.doi_not_found": "No se encontró ningún registro para ese DOI.",
+  "metadata.lookup_failed": "No se pudo conectar con el servicio de DOI. Inténtalo más tarde.",
+  "metadata.lookup_disabled": "La búsqueda por DOI está desactivada en este servidor.",
+  "source.already_has_file": "Esta fuente ya tiene un PDF adjunto.",
+  "project.archived": "Este proyecto está archivado y es de solo lectura."
 }

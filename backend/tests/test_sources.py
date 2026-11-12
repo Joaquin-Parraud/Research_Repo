@@ -35,6 +35,8 @@ SOURCE_KEYS = {
     "authors_text",
     "year",
     "citation_key",
+    "citation_key_auto",
+    "csl",
     "doi",
     "metadata_status",
     "text_status",
@@ -78,7 +80,10 @@ async def test_upload(client: httpx.AsyncClient, pid: str, storage: Path) -> Non
     assert source["project_id"] == pid
     assert source["folder_id"] == folder["id"]
     assert source["title"] == "García et al 2021"
-    assert source["citation_key"] == "garcia-et-al-2021"
+    # No author or year yet: first significant title word + "nd" (FR-S7).
+    assert source["citation_key"] == "garciand"
+    assert source["citation_key_auto"] is True
+    assert source["csl"] == {"type": "document", "title": "García et al 2021"}
     assert source["has_file"] is True
     assert source["file"] == {
         "size_bytes": len(pdf),
@@ -105,17 +110,17 @@ async def test_upload(client: httpx.AsyncClient, pid: str, storage: Path) -> Non
 async def test_title_and_key_rules(client: httpx.AsyncClient, pid: str) -> None:
     titled = (await upload(client, pid, make_pdf(marker="1"), title="  Given   title ")).json()
     assert titled["title"] == "Given title"
-    assert titled["citation_key"] == "given-title"
+    assert titled["citation_key"] == "givennd"
     again = (await upload(client, pid, title="Given title")).json()
-    assert again["citation_key"] == "given-title-2"
+    assert again["citation_key"] == "givennda"
     third = (await upload(client, pid, title="GIVEN title!")).json()
-    assert third["citation_key"] == "given-title-3"
+    assert third["citation_key"] == "givenndb"
     long = (await upload(client, pid, title="A" * 300)).json()
-    assert long["citation_key"] == "a" * 40
+    assert long["citation_key"] == "a" * 54 + "nd"
     long2 = (await upload(client, pid, title="A" * 300)).json()
-    assert long2["citation_key"] == "a" * 38 + "-2"
+    assert long2["citation_key"] == "a" * 54 + "nda"
     symbols = (await upload(client, pid, title="¿¿??")).json()
-    assert symbols["citation_key"] == "source"
+    assert symbols["citation_key"] == "sourcend"
     path = (await upload(client, pid, make_pdf(marker="2"), filename="dir/sub\\x.pdf")).json()
     assert path["title"] == "x"
     assert path["file"]["original_filename"] == "x.pdf"
@@ -128,7 +133,7 @@ async def test_citation_only(client: httpx.AsyncClient, pid: str) -> None:
     assert source["has_file"] is False
     assert source["file"] is None
     assert source["folder_id"] is None
-    assert source["citation_key"] == "a-book-without-pdf"
+    assert source["citation_key"] == "booknd"
 
     assert_error(await upload(client, pid), 422, "validation.invalid")
     assert_error(await upload(client, pid, title="   "), 422, "validation.invalid")
@@ -237,7 +242,7 @@ async def test_duplicate_in_project(
     assert allowed.status_code == 201
     second = allowed.json()
     assert second["id"] != first["id"]
-    assert second["citation_key"] == "again"
+    assert second["citation_key"] == "againnd"
     assert await db.scalar(select(func.count()).select_from(File)) == 1
     assert len(_blobs(storage)) == 1
 
@@ -296,7 +301,9 @@ async def test_patch(client: httpx.AsyncClient, pid: str) -> None:
     assert response.status_code == 200
     body = response.json()
     assert (body["title"], body["folder_id"]) == ("New title", folder["id"])
-    assert body["citation_key"] == source["citation_key"]  # keys are stable
+    # Automatic keys follow the metadata (here: the title, as there is no author).
+    assert (source["citation_key"], body["citation_key"]) == ("oldnd", "newnd")
+    assert body["csl"]["title"] == "New title"
     assert body["updated_at"] >= source["updated_at"]
 
     assert (await client.patch(url, json={"folder_id": None})).json()["folder_id"] is None
@@ -310,7 +317,11 @@ async def test_patch(client: httpx.AsyncClient, pid: str) -> None:
         {"tags": None},
         {"tags": [""]},
         {"tags": ["x" * 101]},
-        {"citation_key": "nope"},
+        {"citation_key": "Nope!"},
+        {"citation_key": "x" * 65},
+        {"metadata_status": "suggested"},
+        {"metadata_status": "pending"},
+        {"unknown": 1},
     ):
         assert_error(await client.patch(url, json=bad), 422, "validation.invalid")
     missing = "00000000-0000-0000-0000-000000000000"
@@ -348,8 +359,9 @@ async def test_tags(client: httpx.AsyncClient, pid: str, db: AsyncSession) -> No
     assert await tag(c, ["methods"]) == ["methods"]
     assert await tag(a, []) == []
 
+    # Tags no source uses any more ("Chile", "survey") are deleted.
     names = (await db.scalars(select(Tag.name).order_by(Tag.name))).all()
-    assert sorted(names) == sorted(["Chile", "Methods", "survey", "new tag", "methods"])
+    assert sorted(names) == sorted(["Methods", "new tag", "methods"])
 
 
 async def test_bulk_move(client: httpx.AsyncClient, pid: str) -> None:

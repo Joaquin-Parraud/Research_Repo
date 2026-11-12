@@ -1,3 +1,4 @@
+import { needsReview } from "../../api/csl";
 import type { SourceSummary } from "../../api/library";
 
 /** Ids between two ids (inclusive) in list order. Falls back to just the target. */
@@ -32,8 +33,21 @@ export function applySelection(
   return { selected: next, anchor: id };
 }
 
-export type SortKey = "title" | "added";
+export type SortKey = "title" | "authors" | "year" | "added";
 export type SortDirection = "asc" | "desc";
+
+/** Sources still waiting for their metadata to be completed or confirmed. */
+export function filterNeedsReview(sources: readonly SourceSummary[]): SourceSummary[] {
+  return sources.filter((source) => needsReview(source.metadata_status));
+}
+
+/** Empty values always sort last, in either direction: an unknown author or year is never "the first". */
+function compareOptional<T>(a: T | null, b: T | null, compare: (x: T, y: T) => number, factor: number): number {
+  const aEmpty = a === null || a === "";
+  const bEmpty = b === null || b === "";
+  if (aEmpty || bEmpty) return aEmpty === bEmpty ? 0 : aEmpty ? 1 : -1;
+  return factor * compare(a, b);
+}
 
 export function sortSources(
   sources: readonly SourceSummary[],
@@ -42,11 +56,21 @@ export function sortSources(
   compareText: (a: string, b: string) => number,
 ): SourceSummary[] {
   const factor = direction === "asc" ? 1 : -1;
-  return [...sources].sort((a, b) => {
-    const primary =
-      key === "title" ? compareText(a.title, b.title) : a.created_at.localeCompare(b.created_at);
-    return factor * primary || compareText(a.title, b.title) || a.id.localeCompare(b.id);
-  });
+  const primary = (a: SourceSummary, b: SourceSummary): number => {
+    switch (key) {
+      case "title":
+        return factor * compareText(a.title, b.title);
+      case "authors":
+        return compareOptional(a.authors_text, b.authors_text, compareText, factor);
+      case "year":
+        return compareOptional(a.year, b.year, (x, y) => x - y, factor);
+      case "added":
+        return factor * a.created_at.localeCompare(b.created_at);
+    }
+  };
+  return [...sources].sort(
+    (a, b) => primary(a, b) || compareText(a.title, b.title) || a.id.localeCompare(b.id),
+  );
 }
 
 /** Authors/year columns are only worth showing once some source has a value. */

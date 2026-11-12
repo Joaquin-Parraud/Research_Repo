@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft v0.5 — for discussion |
+| **Status** | Draft v0.7 — for discussion |
 | **Author** | Joaquín Parraud |
 | **Last updated** | 2026-11-12 |
 
@@ -144,6 +144,7 @@ See [§8](#8-mcp-server).
 - **Web client**: single-page app. Project list, folder tree, source list, PDF viewer, citation panel.
 - **Backend**: one service exposing a REST API to the web client and an MCP endpoint to AI clients. Both call the same service layer, so the MCP server never has logic the UI lacks.
 - **Worker**: background jobs for PDF text extraction and metadata lookup, so uploads return immediately.
+- **Citation service**: a small internal Node service running citeproc-js with the official APA 7 style. Only the backend talks to it. If it is down, citations return an error but the rest of the app, including BibTeX and CSL-JSON export, keeps working.
 - **PostgreSQL**: metadata, folder tree, extracted text and full-text indexes.
 - **File storage**: PDF binaries on disk behind a storage interface, so an S3-compatible backend can replace it later.
 
@@ -158,7 +159,7 @@ Python backend with a React frontend is decided. The individual libraries below 
 | Migrations / ORM | SQLAlchemy + Alembic | Standard for FastAPI |
 | Background jobs | Simple DB-backed job queue | Avoids running Redis for a single-user system |
 | PDF text extraction | PyMuPDF | Fast, page-level text. License (AGPL) is fine for private self-hosting; revisit if the project is ever distributed |
-| Citation formatting | `citeproc-py` + official APA 7 CSL style | Implements FR-C2 |
+| Citation formatting | `citeproc-js` in a small internal Node service (`citeproc/`) + official APA 7 CSL style and locales | Implements FR-C2. `citeproc-py` was tried first and failed the APA test set (8 of 24 cases) |
 | Metadata lookup | Crossref REST API (by DOI) | Free, returns data that maps directly to CSL-JSON |
 | Frontend | React + TypeScript + Vite | Mature tree, drag-and-drop and PDF components |
 | PDF rendering | PDF.js | Standard in-browser renderer |
@@ -420,6 +421,12 @@ M1 to M4 together are the v1 described in this document.
 | 2026-11-12 | Interface language is user-selectable (English and Spanish) from the first release |
 | 2026-11-12 | One citation language per project, changeable at any time in project settings; changing it re-renders all references |
 | 2026-11-12 | Spanish is neutral Spanish (`es`) for both interface and citations |
+| 2026-11-12 | Archived projects are read-only. They can still be read, cited, exported, unarchived, deleted, and copied into a new active project (same folders and sources, shared stored files) |
+| 2026-11-12 | Tags no longer used by any source are deleted automatically |
+| 2026-11-12 | Upload limit is a single environment variable, `MAX_UPLOAD_MB` (default 200), driving both the backend and nginx |
+| 2026-11-12 | Suggested metadata is looked up synchronously during upload, within a short time budget; a failed lookup never fails the upload |
+| 2026-11-12 | Citations are rendered by citeproc-js, run as an internal service in Docker Compose; the backend calls it over HTTP. A set of 23 reference cases with expected APA 7 output is part of the test suite |
+| 2026-11-12 | The official APA style and locales are the source of truth for wording: Spanish keeps "&" in reference lists and parenthetical citations (narrative uses "y"), dates render as "(2021, abril 15)", and "Recuperado 5 de marzo…" has no "el" |
 
 ## 13. Risks
 

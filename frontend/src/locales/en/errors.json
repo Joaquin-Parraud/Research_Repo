@@ -8,6 +8,8 @@
   "resource.not_found": "The requested item was not found.",
   "auth.forbidden": "You do not have permission to do that.",
   "project.not_found": "Project not found.",
+  "citation.unavailable": "The citation service is temporarily unavailable. Please try again shortly.",
+  "citation.render_failed": "This citation could not be formatted. Check the source's metadata.",
   "network": "Could not reach the server. Check your connection and try again.",
   "unknown": "Something went wrong. Please try again.",
   "folder.name_conflict": "A folder with that name already exists here.",
@@ -18,5 +20,13 @@
   "source.duplicate_file": "This PDF is already in the project.",
   "source.no_file": "This source has no PDF attached.",
   "source.move_invalid": "The selected sources cannot be moved there.",
-  "source.not_found": "Source not found. It may have been deleted."
+  "source.not_found": "Source not found. It may have been deleted.",
+  "metadata.invalid_csl": "The metadata is not valid. Check that the type and the title are filled in.",
+  "source.citation_key_conflict": "Another source in this project already uses that citation key.",
+  "metadata.invalid_doi": "That does not look like a valid DOI.",
+  "metadata.doi_not_found": "No record was found for that DOI.",
+  "metadata.lookup_failed": "The DOI service could not be reached. Try again later.",
+  "metadata.lookup_disabled": "DOI lookup is turned off on this server.",
+  "source.already_has_file": "This source already has a PDF attached.",
+  "project.archived": "This project is archived and read-only."
 }

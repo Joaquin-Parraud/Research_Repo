@@ -1,0 +1,25 @@
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0.75rem 0.75rem 0;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.6rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.4rem;
+}

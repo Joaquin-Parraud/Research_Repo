@@ -4,6 +4,7 @@ import { translateError } from "../../api/translateError";
 import { Button } from "../../components/Button";
 import { Dialog } from "../../components/Dialog";
 import forms from "../../components/Form.module.css";
+import { useConfig } from "../config/useConfig";
 import { useSourceActions } from "../library/useLibrary";
 import { useAppNavigation } from "../../hooks/useAppNavigation";
 
@@ -20,6 +21,7 @@ export function AddSourceDialog({ projectId, folderId, onFiles, onClose }: Props
   const { createCitation } = useSourceActions(projectId);
   const { openSource } = useAppNavigation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const config = useConfig();
   const [title, setTitle] = useState("");
 
   function handleFiles(event: ChangeEvent<HTMLInputElement>) {
@@ -54,6 +56,9 @@ export function AddSourceDialog({ projectId, folderId, onFiles, onClose }: Props
       <div style={{ display: "grid", gap: "0.4rem" }}>
         <h3 className={forms.sectionTitle}>{t("sources.add.pdfHeading")}</h3>
         <p className={forms.hint}>{t("sources.add.pdfHint")}</p>
+        {config.data && (
+          <p className={forms.hint}>{t("sources.add.limitHint", { max: config.data.max_upload_mb })}</p>
+        )}
         <div>
           <Button variant="primary" onClick={() => inputRef.current?.click()} data-autofocus>
             {t("sources.add.choose")}
