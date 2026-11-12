@@ -1,0 +1,13 @@
+{
+  "auth.invalid_credentials": "Correo electrónico o contraseña incorrectos.",
+  "auth.not_authenticated": "Tu sesión ha expirado. Inicia sesión de nuevo.",
+  "auth.rate_limited": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+  "validation.invalid": "Algunos de los datos ingresados no son válidos.",
+  "server.internal": "Algo salió mal en el servidor. Inténtalo de nuevo.",
+  "server.unavailable": "El servidor no está disponible temporalmente. Inténtalo de nuevo en unos momentos.",
+  "resource.not_found": "No se encontró el elemento solicitado.",
+  "auth.forbidden": "No tienes permiso para hacer eso.",
+  "project.not_found": "Proyecto no encontrado.",
+  "network": "No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
+  "unknown": "Algo salió mal. Inténtalo de nuevo."
+}

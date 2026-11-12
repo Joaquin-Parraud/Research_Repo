@@ -1,0 +1,14 @@
+{
+  "projects.title": "Proyectos",
+  "projects.empty.title": "Aún no hay proyectos",
+  "projects.empty.body": "Los proyectos aparecerán aquí cuando puedas crearlos.",
+  "sources.title": "Fuentes",
+  "sources.empty.title": "Nada seleccionado",
+  "sources.empty.body": "Selecciona un proyecto para ver sus fuentes.",
+  "viewer.title": "Visor",
+  "viewer.empty.title": "Ninguna fuente abierta",
+  "viewer.empty.body": "El visor de PDF y el panel de citas aparecerán aquí.",
+  "citation.title": "Cita",
+  "citation.empty.body": "Selecciona una fuente para ver su referencia.",
+  "user.menu": "Cuenta"
+}

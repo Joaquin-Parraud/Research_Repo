@@ -1,0 +1,13 @@
+{
+  "auth.invalid_credentials": "Incorrect email or password.",
+  "auth.not_authenticated": "Your session has expired. Please sign in again.",
+  "auth.rate_limited": "Too many attempts. Please wait a moment and try again.",
+  "validation.invalid": "Some of the data entered is not valid.",
+  "server.internal": "Something went wrong on the server. Please try again.",
+  "server.unavailable": "The server is temporarily unavailable. Please try again shortly.",
+  "resource.not_found": "The requested item was not found.",
+  "auth.forbidden": "You do not have permission to do that.",
+  "project.not_found": "Project not found.",
+  "network": "Could not reach the server. Check your connection and try again.",
+  "unknown": "Something went wrong. Please try again."
+}

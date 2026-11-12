@@ -1,0 +1,14 @@
+{
+  "projects.title": "Projects",
+  "projects.empty.title": "No projects yet",
+  "projects.empty.body": "Projects will appear here once you can create them.",
+  "sources.title": "Sources",
+  "sources.empty.title": "Nothing selected",
+  "sources.empty.body": "Select a project to see its sources.",
+  "viewer.title": "Viewer",
+  "viewer.empty.title": "No source open",
+  "viewer.empty.body": "The PDF viewer and citation panel will appear here.",
+  "citation.title": "Citation",
+  "citation.empty.body": "Select a source to see its reference.",
+  "user.menu": "Account"
+}

@@ -1,0 +1,48 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.panes {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) minmax(14rem, 1.6fr) minmax(16rem, 2.4fr);
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.left,
+.middle {
+  display: flex;
+  min-height: 0;
+}
+
+.left > *,
+.middle > * {
+  flex: 1;
+}
+
+.right {
+  display: grid;
+  grid-template-rows: 3fr 1fr;
+  gap: 0.75rem;
+  min-height: 0;
+  min-width: 0;
+}
+
+@media (max-width: 800px) {
+  .shell {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .panes {
+    grid-template-columns: 1fr;
+  }
+
+  .right {
+    grid-template-rows: auto;
+  }
+}
