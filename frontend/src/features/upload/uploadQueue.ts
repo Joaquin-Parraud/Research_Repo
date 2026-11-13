@@ -50,8 +50,19 @@ export interface UploadQueue {
 
 export const DUPLICATE_CODE = "source.duplicate_file";
 
+/** The registered type plus the legacy ones older systems and browsers still report. */
+const PDF_TYPES = new Set([
+  "application/pdf",
+  "application/x-pdf",
+  "application/acrobat",
+  "applications/vnd.pdf",
+  "text/pdf",
+  "text/x-pdf",
+]);
+
+/** A first filter only: the server checks the file's content, whatever its type or name says. */
 export function isPdfFile(file: File): boolean {
-  return file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+  return PDF_TYPES.has(file.type.toLowerCase()) || /\.pdf\s*$/i.test(file.name);
 }
 
 const BYTES_PER_MB = 1024 * 1024;

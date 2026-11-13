@@ -108,7 +108,7 @@ def _pdf_string(value: str) -> str:
 
 
 def make_text_pdf(
-    pages: list[list[str]], info: dict[str, str] | None = None, xmp: str | None = None
+    pages: list[list[str]], info: dict[str, str] | None = None, xmp: str | bytes | None = None
 ) -> bytes:
     """A PDF with real text (Helvetica) on each page, an optional info dictionary and XMP."""
     objects: list[bytes] = []
@@ -136,7 +136,7 @@ def make_text_pdf(
         )
     metadata_ref = b""
     if xmp:
-        data = xmp.encode()
+        data = xmp.encode() if isinstance(xmp, str) else xmp
         xmp_id = add(
             b"<< /Type /Metadata /Subtype /XML /Length %d >>\nstream\n" % len(data)
             + data
