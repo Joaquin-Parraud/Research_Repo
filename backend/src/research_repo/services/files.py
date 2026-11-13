@@ -8,36 +8,25 @@ from pathlib import Path
 from sqlalchemy import delete, exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from research_repo.core.pdf import PdfUnreadable, header_offset, open_pdf
 from research_repo.models import File, Source
 
 logger = logging.getLogger(__name__)
 
-PDF_MAGIC = b"%PDF-"
-PDF_EOF = b"%%EOF"
-_EOF_SEARCH_BYTES = 1024
-
 
 def looks_like_pdf(head: bytes) -> bool:
-    return head.startswith(PDF_MAGIC)
+    """``head``: the file's first 1024 bytes."""
+    return header_offset(head) is not None
 
 
 def pdf_page_count(path: Path) -> int | None:
-    """Page count via pypdf, or None for encrypted or unparseable files. Blocking."""
-    from pypdf import PdfReader  # heavy import, only needed for uploads
-
+    """Page count via pypdf, or None for password-protected or unparseable files. Blocking."""
     try:
-        # An open file, not a path: given a path, pypdf reads the whole file into memory.
-        with path.open("rb") as fh:
-            # Without an end marker pypdf's recovery reads the whole file (memory ~2x its
-            # size); such files are stored without a page count instead.
-            fh.seek(max(0, path.stat().st_size - _EOF_SEARCH_BYTES))
-            if PDF_EOF not in fh.read():
-                return None
-            fh.seek(0)
-            reader = PdfReader(fh, strict=False)
-            if reader.is_encrypted:
-                return None
+        with open_pdf(path) as reader:
             count = len(reader.pages)
+    except PdfUnreadable as exc:
+        logger.info("Storing PDF %s without a page count: %s", path.name, exc)
+        return None
     except Exception:  # pypdf raises many types for damaged files
         logger.info("Could not parse PDF %s; storing it without a page count", path.name)
         return None

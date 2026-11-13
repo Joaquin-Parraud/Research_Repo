@@ -38,6 +38,17 @@ describe("partitionPdfs", () => {
     expect(accepted.map((f) => f.name)).toEqual(["a.pdf", "B.PDF"]);
     expect(rejected.map((f) => f.name)).toEqual(["notes.txt", "image.png"]);
   });
+
+  it("accepts the legacy PDF MIME types some systems report for files without a .pdf name", () => {
+    const { accepted, rejected } = partitionPdfs([
+      new File(["x"], "download", { type: "application/x-pdf" }),
+      new File(["x"], "article", { type: "application/acrobat" }),
+      new File(["x"], "paper.pdf ", { type: "application/octet-stream" }),
+      new File(["x"], "blob", { type: "application/octet-stream" }),
+    ]);
+    expect(accepted.map((f) => f.name)).toEqual(["download", "article", "paper.pdf "]);
+    expect(rejected.map((f) => f.name)).toEqual(["blob"]);
+  });
 });
 
 describe("upload queue", () => {

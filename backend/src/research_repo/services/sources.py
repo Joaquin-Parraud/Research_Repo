@@ -43,6 +43,9 @@ MAX_TITLE_LENGTH = 1000
 MAX_TAG_LENGTH = 100
 MAX_TAGS = 100
 MAX_FILENAME_LENGTH = 255
+# The page count is read in a worker thread; past this, the file is stored without one (the
+# thread finishes on its own).
+PAGE_COUNT_TIMEOUT_SECONDS = 15.0
 
 
 class SourceNotFound(NotFound):
@@ -314,11 +317,17 @@ async def _file_for_upload(
 
 
 async def _checked_pdf(staged: StagedFile) -> int | None:
-    """Reject non-PDFs; return the page count (None if unreadable)."""
+    """Reject non-PDFs; return the page count (None if unreadable or too slow to count: a
+    pathological file can keep the parser busy for minutes, and the upload must answer)."""
     if staged.size == 0 or not looks_like_pdf(staged.head):
         raise InvalidPdf
     await staged.finish()
-    return await asyncio.to_thread(pdf_page_count, staged.path)
+    try:
+        async with asyncio.timeout(PAGE_COUNT_TIMEOUT_SECONDS):
+            return await asyncio.to_thread(pdf_page_count, staged.path)
+    except TimeoutError:
+        logger.info("Counting the pages of %s ran out of time", staged.original_filename)
+        return None
 
 
 async def _apply_suggestion(db: AsyncSession, source_id: uuid.UUID, suggestion: Suggestion) -> None:

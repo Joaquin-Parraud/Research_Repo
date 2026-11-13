@@ -6,6 +6,7 @@ real Crossref ``/works/{doi}`` responses (written by hand).
 
 import asyncio
 import json
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -14,7 +15,7 @@ import httpx
 import pytest
 from fastapi import FastAPI
 
-from research_repo.citations import crossref
+from research_repo.citations import crossref, pdfmeta
 from research_repo.citations.csl import InvalidCsl
 from research_repo.citations.pdfmeta import (
     find_doi,
@@ -357,6 +358,32 @@ async def test_upload_survives_timeout_and_errors(
     assert (await upload(client, pid, plain, allow_duplicate="true")).status_code == 201
     _use_crossref(app, settings, lambda _: httpx.Response(200, text="not json"))
     assert (await upload(client, pid, plain, allow_duplicate="true")).status_code == 201
+
+
+async def test_slow_pdf_inspection_does_not_use_up_the_crossref_budget(
+    app: FastAPI,
+    settings: Settings,
+    client: httpx.AsyncClient,
+    pid: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A large PDF that takes most of the budget to read still gets its DOI looked up."""
+    real_inspect = pdfmeta.inspect_pdf
+
+    def slow_inspect(path: Path) -> pdfmeta.PdfFacts:
+        time.sleep(0.95)
+        return real_inspect(path)
+
+    async def answer(_: httpx.Request) -> httpx.Response:
+        await asyncio.sleep(0.2)
+        return httpx.Response(200, json=_message(JOURNAL))
+
+    monkeypatch.setattr(pdfmeta, "inspect_pdf", slow_inspect)
+    calls = _use_crossref(app, settings, answer, metadata_lookup_timeout_seconds=1.0)
+    source = (await upload(client, pid, DOI_PDF)).json()
+    assert len(calls) == 1
+    assert source["metadata_status"] == "suggested"
+    assert source["csl"]["container-title"] == "Journal of Applied Things"
 
 
 async def test_upload_with_lookup_disabled(
