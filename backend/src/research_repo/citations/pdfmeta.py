@@ -22,9 +22,19 @@ _MAX_TEXT = 200_000
 _MAX_XMP_BYTES = 1024 * 1024
 _EOF_SEARCH_BYTES = 1024
 
-# Crossref's recommended pattern (https://www.crossref.org/blog/dois-and-matching-regular-expressions/),
-# found anywhere in running text.
-DOI_RE = re.compile(r"\b(10\.\d{4,9}/[-._;()/:a-z0-9]+)", re.IGNORECASE)
+# Crossref's recommended patterns (https://www.crossref.org/blog/dois-and-matching-regular-expressions/),
+# found anywhere in running text: the modern one, and Wiley's early SICI DOIs, which contain
+# "<" and ">" (10.1002/(SICI)1097-4571(199806)49:8<693::AID-ASI4>3.0.CO;2-0).
+DOI_RE = re.compile(
+    r"\b(10\.1002/\(SICI\)[-._;()/:<>a-z0-9]+|10\.\d{4,9}/[-._;()/:a-z0-9]+)", re.IGNORECASE
+)
+# A DOI broken over two lines, as text extraction gives it for a narrow column: the first line
+# ends inside the DOI (after "/", ".", "-" or "_") and the next one goes on in lowercase or digits.
+# A capital letter after a full stop starts a new sentence instead.
+_BROKEN_DOI = re.compile(
+    r"(\b10\.\d{4,9}/(?:[-._;()/:a-z0-9]*[-./_])?)[ \t]*\r?\n[ \t]*(?=(?-i:[a-z0-9]))",
+    re.IGNORECASE,
+)
 _TRAILING = ".,;:"
 
 _JUNK_TITLE = re.compile(
@@ -55,8 +65,8 @@ class PdfFacts:
 
 def find_doi(text: str) -> str | None:
     """The first DOI in a text, with trailing punctuation and unbalanced brackets removed."""
-    for match in DOI_RE.finditer(text):
-        doi = match.group(1)
+    for match in DOI_RE.finditer(_BROKEN_DOI.sub(r"\1", text)):
+        doi = match.group(1).split("</", 1)[0]  # a SICI DOI ends where XML markup starts
         while doi and (
             doi[-1] in _TRAILING
             or (doi[-1] == ")" and doi.count("(") < doi.count(")"))

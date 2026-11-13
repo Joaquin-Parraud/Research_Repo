@@ -1,14 +1,15 @@
 """Metadata suggestions (FR-S2, FR-S3): DOI → Crossref, else the PDF's embedded metadata.
 
 One :class:`MetadataLookup` lives on the application. Suggestions never raise: a failed or
-slow lookup simply yields less. The whole run (PDF inspection in a worker thread, then at most
-one Crossref request) is bounded by ``METADATA_LOOKUP_TIMEOUT_SECONDS``; a PDF inspection still
-running when the budget ends finishes in its thread, but nobody waits for it.
+slow lookup simply yields less. Each step is bounded by ``METADATA_LOOKUP_TIMEOUT_SECONDS``: the
+PDF inspection in a worker thread, then the Crossref lookup (retries included). They have a
+budget each, so a large PDF that is slow to read does not leave the DOI it found unlooked-up.
+A PDF inspection still running when its budget ends finishes in its thread, but nobody waits
+for it.
 """
 
 import asyncio
 import logging
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -91,7 +92,6 @@ class MetadataLookup:
 
     async def suggest(self, path: Path) -> Suggestion:
         """The suggestion for a stored PDF. Never raises."""
-        deadline = time.monotonic() + self.timeout
         try:
             async with asyncio.timeout(self.timeout):
                 facts = await asyncio.to_thread(pdfmeta.inspect_pdf, path)
@@ -103,18 +103,16 @@ class MetadataLookup:
             return NO_SUGGESTION
 
         if facts.doi and self.enabled:
-            remaining = deadline - time.monotonic()
-            if remaining > 0.05:
-                try:
-                    async with asyncio.timeout(remaining):
-                        message = await self.crossref.work(facts.doi, timeout=remaining)
-                    return Suggestion(csl=crossref.to_csl(message), origin="doi", doi=facts.doi)
-                except (crossref.CrossrefNotFound, crossref.CrossrefError, TimeoutError) as exc:
-                    logger.info("Crossref lookup for %s failed: %r", facts.doi, exc)
-                except InvalidCsl:
-                    logger.info("Crossref record for %s is unusable", facts.doi)
-                except Exception:
-                    logger.exception("Crossref lookup for %s failed", facts.doi)
+            try:
+                async with asyncio.timeout(self.timeout):
+                    message = await self.crossref.work(facts.doi, timeout=self.timeout)
+                return Suggestion(csl=crossref.to_csl(message), origin="doi", doi=facts.doi)
+            except (crossref.CrossrefNotFound, crossref.CrossrefError, TimeoutError) as exc:
+                logger.info("Crossref lookup for %s failed: %r", facts.doi, exc)
+            except InvalidCsl:
+                logger.info("Crossref record for %s is unusable", facts.doi)
+            except Exception:
+                logger.exception("Crossref lookup for %s failed", facts.doi)
 
         embedded = pdfmeta.embedded_csl(facts)
         if embedded is not None:
