@@ -10,7 +10,6 @@ import { useExpandedFolders } from "../features/folders/useExpandedFolders";
 import { useTree } from "../features/library/useLibrary";
 import { BibliographyDialog } from "../features/bibliography/BibliographyDialog";
 import { Button } from "../components/Button";
-import { ProjectList } from "../features/projects/ProjectList";
 import { useProjectAccess } from "../features/projects/useProjectAccess";
 import { useProject } from "../features/projects/useProjects";
 import { ReadmePanel } from "../features/readme/ReadmePanel";
@@ -24,7 +23,7 @@ interface Props {
   sourceId: string | null;
 }
 
-/** The three panes for one selected project. */
+/** The folder, source and viewer panes for one selected project (projects live in the sidebar). */
 export function ProjectWorkspace({ projectId, folderId, sourceId }: Props) {
   const { t, i18n } = useTranslation("shell");
   const project = useProject(projectId);
@@ -35,18 +34,9 @@ export function ProjectWorkspace({ projectId, folderId, sourceId }: Props) {
   const writable = access?.canWrite ?? false;
   const [exportingProject, setExportingProject] = useState(false);
 
-  const leftTop = (
-    <div className={styles.projects}>
-      <Pane title={t("projects.title")}>
-        <ProjectList selectedId={projectId} />
-      </Pane>
-    </div>
-  );
-
   if (project.isError) {
     return (
       <>
-        <div className={styles.left}>{leftTop}</div>
         <div className={styles.wide}>
           <Pane title={t("projects.title")}>
             <EmptyState
@@ -70,7 +60,6 @@ export function ProjectWorkspace({ projectId, folderId, sourceId }: Props) {
       onFolderReceived={(folderId) => expansion.expand([folderId])}
     >
       <div className={styles.left}>
-        {leftTop}
         <div className={styles.folders}>
           <Pane title={t("folders.title")}>
             {tree.data && project.data ? (

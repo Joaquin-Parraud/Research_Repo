@@ -11,7 +11,13 @@ import { ProjectSettingsDialog } from "./ProjectSettingsDialog";
 import { useProjects } from "./useProjects";
 import styles from "./ProjectList.module.css";
 
-export function ProjectList({ selectedId }: { selectedId: string | null }) {
+interface ProjectListProps {
+  selectedId: string | null;
+  /** Called when a project link is activated (e.g. to close the overlay sidebar). */
+  onSelect?: () => void;
+}
+
+export function ProjectList({ selectedId, onSelect }: ProjectListProps) {
   const { t, i18n } = useTranslation("library");
   const [showArchived, setShowArchived] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -55,6 +61,7 @@ export function ProjectList({ selectedId }: { selectedId: string | null }) {
                 <AppLink
                   to={projectPath(project.id)}
                   className={styles.link}
+                  onClick={onSelect}
                   aria-current={selected ? "page" : undefined}
                 >
                   <span className={styles.name}>{project.name}</span>

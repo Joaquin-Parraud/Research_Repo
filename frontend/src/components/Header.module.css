@@ -41,3 +41,25 @@
 .button:hover {
   background: var(--hover);
 }
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.menuButton {
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  background: var(--hover);
+}
