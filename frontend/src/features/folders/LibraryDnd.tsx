@@ -20,6 +20,12 @@ export interface LibraryDragData {
   label: string;
 }
 
+/**
+ * How far (px) the pointer must travel before a press becomes a drag. Below it the
+ * press stays a plain click, so source rows and folder rows open on click.
+ */
+export const DRAG_ACTIVATION_DISTANCE = 6;
+
 function isDragData(value: unknown): value is LibraryDragData {
   return typeof value === "object" && value !== null && "payload" in value && "label" in value;
 }
@@ -40,7 +46,7 @@ export function LibraryDnd({ projectId, folders, sources, onFolderReceived, chil
   const folderActions = useFolderActions(projectId);
   const sourceActions = useSourceActions(projectId);
   const [active, setActive] = useState<LibraryDragData | null>(null);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: DRAG_ACTIVATION_DISTANCE } }));
 
   function handleStart(event: DragStartEvent) {
     const data: unknown = event.active.data.current;

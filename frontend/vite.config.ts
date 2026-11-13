@@ -25,5 +25,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
+    // Real styles for the stylesheets whose layout tests assert computed styles.
+    css: { include: [/SourceList\.module\.css$/] },
   },
 });
