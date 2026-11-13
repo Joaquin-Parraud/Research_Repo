@@ -6,6 +6,7 @@ import { I18nextProvider } from "react-i18next";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import i18n from "../i18n";
 import { PdfViewer } from "../features/viewer/PdfViewer";
+import { shouldCollapseOnEscape } from "../features/viewer/useExpandedViewer";
 import { useLastPageSaver } from "../features/viewer/useLastPageSaver";
 import { loadPdfjs } from "../features/viewer/pdfjs";
 import { baseRoutes, bodyOf, makeSource } from "./fixtures";
@@ -155,6 +156,61 @@ describe("PdfViewer", () => {
     await screen.findByText("of 2");
     unmount();
     expect(destroy).toHaveBeenCalled();
+  });
+});
+
+describe("expanded viewer", () => {
+  const renderViewer = async () => {
+    installPdfjs(3);
+    render(<PdfViewer sourceId="s1" initialPage={2} canSaveProgress onClose={() => undefined} />, { wrapper: Providers });
+    await screen.findByText("of 3");
+  };
+  const toggle = () => screen.getByRole("button", { name: /^(Expand|Collapse)$/ });
+  const root = () => screen.getByRole("toolbar").parentElement as HTMLElement;
+
+  it("toggles expanded mode, keeps the page and exposes aria-pressed", async () => {
+    await renderViewer();
+    expect(toggle()).toHaveAttribute("aria-pressed", "false");
+    expect(root().className).not.toMatch(/expanded/);
+
+    await userEvent.click(toggle());
+    expect(toggle()).toHaveAttribute("aria-pressed", "true");
+    expect(toggle()).toHaveTextContent("Collapse");
+    expect(root().className).toMatch(/expanded/);
+    expect(screen.getByLabelText("Page number")).toHaveValue("2");
+
+    await userEvent.click(toggle());
+    expect(toggle()).toHaveAttribute("aria-pressed", "false");
+    expect(root().className).not.toMatch(/expanded/);
+  });
+
+  it("Escape collapses, but in the search box it clears the query first", async () => {
+    await renderViewer();
+    await userEvent.click(toggle());
+    const search = screen.getByRole("searchbox", { name: "Search in document" });
+    await userEvent.type(search, "Hello");
+    await userEvent.keyboard("{Escape}");
+    expect(search).toHaveValue("");
+    expect(toggle()).toHaveAttribute("aria-pressed", "true");
+    await userEvent.keyboard("{Escape}");
+    expect(toggle()).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("works when the Fullscreen API rejects", async () => {
+    await renderViewer();
+    const request = vi.fn(() => Promise.reject(new Error("denied")));
+    root().requestFullscreen = request;
+    await userEvent.click(toggle());
+    expect(request).toHaveBeenCalled();
+    expect(toggle()).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("shouldCollapseOnEscape only reacts to unhandled Escape while expanded", () => {
+    expect(shouldCollapseOnEscape({ key: "Escape", defaultPrevented: false }, true)).toBe(true);
+    expect(shouldCollapseOnEscape({ key: "Escape", defaultPrevented: false }, false)).toBe(false);
+    expect(shouldCollapseOnEscape({ key: "Escape", defaultPrevented: true }, true)).toBe(false);
+    expect(shouldCollapseOnEscape({ key: "Escape", defaultPrevented: false, isComposing: true }, true)).toBe(false);
+    expect(shouldCollapseOnEscape({ key: "a", defaultPrevented: false }, true)).toBe(false);
   });
 });
 

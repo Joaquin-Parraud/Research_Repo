@@ -15,6 +15,8 @@ interface Props {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onFitWidth: () => void;
+  expanded: boolean;
+  onToggleExpanded: () => void;
   onClose: () => void;
 }
 
@@ -29,6 +31,8 @@ export function ViewerToolbar({
   onZoomIn,
   onZoomOut,
   onFitWidth,
+  expanded,
+  onToggleExpanded,
   onClose,
 }: Props) {
   const { t, i18n } = useTranslation("viewer");
@@ -49,6 +53,10 @@ export function ViewerToolbar({
       event.preventDefault();
       if (event.shiftKey) search.previous();
       else search.next();
+    } else if (event.key === "Escape" && query !== "") {
+      // Clear the search first; marking the event handled keeps the viewer expanded.
+      event.preventDefault();
+      onQueryChange("");
     }
   }
 
@@ -129,6 +137,14 @@ export function ViewerToolbar({
       </div>
 
       <span className={styles.spacer} />
+      <Button
+        size="small"
+        aria-pressed={expanded}
+        title={expanded ? t("toolbar.collapseHint") : t("toolbar.expandHint")}
+        onClick={onToggleExpanded}
+      >
+        {expanded ? t("toolbar.collapse") : t("toolbar.expand")}
+      </Button>
       <Button size="small" variant="ghost" onClick={onClose}>
         {t("toolbar.close")}
       </Button>

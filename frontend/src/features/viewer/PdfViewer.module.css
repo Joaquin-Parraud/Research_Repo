@@ -38,3 +38,11 @@
 .errorText {
   color: var(--danger);
 }
+
+/* Expanded: cover the whole browser viewport, above header, sidebars and other panes. */
+.expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+}

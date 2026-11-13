@@ -4,6 +4,7 @@ import { Button } from "../../components/Button";
 import { PdfPage, type PageSize } from "./PdfPage";
 import { useLastPageSaver } from "./useLastPageSaver";
 import { usePdfDocument } from "./usePdfDocument";
+import { useExpandedViewer } from "./useExpandedViewer";
 import { usePdfSearch } from "./usePdfSearch";
 import { ViewerToolbar } from "./ViewerToolbar";
 import { clampPage, fitWidthScale, pageAtOffset, zoomIn, zoomOut, PAGE_GAP_PX } from "./viewerMath";
@@ -25,9 +26,11 @@ export function PdfViewer({ sourceId, initialPage, canSaveProgress, onClose }: P
   const { t } = useTranslation("viewer");
   const [attempt, setAttempt] = useState(0);
   const state = usePdfDocument(sourceId, attempt);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const expandedViewer = useExpandedViewer(rootRef);
 
   return (
-    <div className={styles.viewer}>
+    <div ref={rootRef} className={`${styles.viewer} ${expandedViewer.expanded ? styles.expanded : ""}`}>
       {state.status === "loading" && (
         <div className={styles.state} role="status">
           {t("loading")}
@@ -53,6 +56,8 @@ export function PdfViewer({ sourceId, initialPage, canSaveProgress, onClose }: P
           sourceId={sourceId}
           initialPage={initialPage}
           canSaveProgress={canSaveProgress}
+          expanded={expandedViewer.expanded}
+          onToggleExpanded={expandedViewer.toggle}
           onClose={onClose}
         />
       )}
@@ -67,10 +72,12 @@ interface LoadedProps {
   sourceId: string;
   initialPage: number;
   canSaveProgress: boolean;
+  expanded: boolean;
+  onToggleExpanded: () => void;
   onClose: () => void;
 }
 
-function LoadedViewer({ doc, sourceId, initialPage, canSaveProgress, onClose }: LoadedProps) {
+function LoadedViewer({ doc, sourceId, initialPage, canSaveProgress, expanded, onToggleExpanded, onClose }: LoadedProps) {
   const { t } = useTranslation("viewer");
   const pageCount = doc.numPages;
   const startPage = clampPage(initialPage, pageCount);
@@ -229,6 +236,8 @@ function LoadedViewer({ doc, sourceId, initialPage, canSaveProgress, onClose }: 
         onZoomIn={() => setUserScale(zoomIn(scale ?? 1))}
         onZoomOut={() => setUserScale(zoomOut(scale ?? 1))}
         onFitWidth={() => setUserScale(null)}
+        expanded={expanded}
+        onToggleExpanded={onToggleExpanded}
         onClose={onClose}
       />
       <div
